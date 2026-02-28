@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SYNKEM</title>
+<link rel="icon" type="image/png" href="logo-t.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config={darkMode:'class',theme:{extend:{colors:{primary:{50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81'},accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{inter:['Inter','sans-serif'],arabic:['Noto Sans Arabic','sans-serif']}}}}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 30%,#f8fafc 60%,#eef2ff 100%);color:#1e293b;min-height:100vh}
+html[dir="rtl"] body{font-family:'Noto Sans Arabic','Inter',sans-serif}
+.page{display:none;opacity:0;transform:translateY(12px) scale(0.98);transition:opacity .3s,transform .3s}
+.page.active{display:block;opacity:1;transform:translateY(0) scale(1)}
+.ltr-nums{direction:ltr;unicode-bidi:embed}
+.card-hover{transition:transform .4s cubic-bezier(.175,.885,.32,1.275),box-shadow .4s}
+.card-hover:hover{transform:translateY(-8px);box-shadow:0 25px 50px rgba(99,102,241,.15),0 0 0 1px rgba(99,102,241,.1)}
+.scroll-reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.scroll-reveal.visible{opacity:1;transform:translateY(0)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseRing{0%{transform:scale(.8);opacity:1}100%{transform:scale(2.4);opacity:0}}
+@keyframes checkDraw{to{stroke-dashoffset:0}}
+@keyframes confettiFall{0%{transform:translateY(-100vh) rotate(0)}100%{transform:translateY(100vh) rotate(720deg)}}
+.pulse-ring{animation:pulseRing 1.5s ease-out infinite}
+.confetti-piece{position:fixed;top:-20px;width:10px;height:10px;opacity:.8;animation:confettiFall linear forwards;z-index:100;pointer-events:none}
+.check-svg .check-path{stroke-dasharray:60;stroke-dashoffset:60;animation:checkDraw .6s .3s ease forwards}
+.toast{transform:translateX(120%);transition:transform .3s}
+.toast.show{transform:translateX(0)}
+.mobile-menu{transform:translateX(-100%);transition:transform .3s}
+html[dir="rtl"] .mobile-menu{transform:translateX(100%)}
+.mobile-menu.open{transform:translateX(0)}
+.overlay{opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.open{opacity:1;pointer-events:auto}
+.tab-active{border-bottom:2px solid #4338ca;color:#4338ca;font-weight:600}
+.payment-card{border:2px solid #e2e8f0;transition:all .2s}
+.payment-card.selected{border-color:#4338ca;background:#eef2ff}
+.sidebar-link{transition:background .15s,border-color .15s}
+.sidebar-link.active{background:#eef2ff;border-left:3px solid #4338ca}
+html[dir="rtl"] .sidebar-link.active{border-left:none;border-right:3px solid #4338ca}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero-gradient{background:linear-gradient(-45deg,#0a0a1a,#1a103d,#0c1929,#1e0a3e);background-size:400% 400%;animation:gradientShift 15s ease infinite}
+@keyframes meshFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-20px) scale(1.1)}50%{transform:translate(-20px,30px) scale(.95)}75%{transform:translate(20px,20px) scale(1.05)}}
+.mesh-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.4;animation:meshFloat 20s ease-in-out infinite}
+.glass{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1)}
+.glass-light{background:rgba(255,255,255,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.5);box-shadow:0 8px 32px rgba(0,0,0,.06)}
+.glass-card{background:rgba(255,255,255,.75);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.6);box-shadow:0 8px 32px rgba(0,0,0,.05),inset 0 1px 0 rgba(255,255,255,.8)}
+.glass-card:hover{background:rgba(255,255,255,.85);box-shadow:0 20px 60px rgba(99,102,241,.12),0 0 0 1px rgba(99,102,241,.1),inset 0 1px 0 rgba(255,255,255,.9)}
+.stat-glow{box-shadow:0 0 40px rgba(99,102,241,.08),0 8px 32px rgba(0,0,0,.04)}
+.neon-glow{box-shadow:0 0 20px rgba(99,102,241,.3),0 0 60px rgba(99,102,241,.1)}
+.neon-glow-sm{box-shadow:0 0 12px rgba(99,102,241,.2)}
+.neon-text{text-shadow:0 0 30px rgba(99,102,241,.4)}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.shimmer-border{background:linear-gradient(90deg,transparent,rgba(99,102,241,.3),transparent);background-size:200% 100%;animation:shimmer 3s linear infinite}
+.bento-grid{display:grid;gap:16px}
+@keyframes subtlePulse{0%,100%{opacity:.3}50%{opacity:.6}}
+.pulse-slow{animation:subtlePulse 4s ease-in-out infinite}
+.timeline-line{height:3px;transition:background .3s}
+.step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;transition:all .3s}
+.modal-overlay{background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.badge{padding:2px 10px;border-radius:9999px;font-size:12px;font-weight:500}
+.grid-pattern{background-image:radial-gradient(rgba(255,255,255,.1) 1px,transparent 1px);background-size:24px 24px}
+.rtl-flip{transition:transform .2s}
+html[dir="rtl"] .rtl-flip{transform:scaleX(-1)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}
+/* Dark theme */
+html.dark body{background:#0f172a;color:#e2e8f0}
+html.dark .bg-white{background:#1e293b !important}
+html.dark .bg-white\/90{background:rgba(30,41,59,.9) !important}
+html.dark .bg-slate-50,html.dark .bg-gray-50{background:#1e293b !important}
+html.dark .bg-gray-100{background:#334155 !important}
+html.dark .bg-indigo-50{background:rgba(99,102,241,.15) !important}
+html.dark .bg-blue-50{background:rgba(59,130,246,.15) !important}
+html.dark .bg-emerald-50{background:rgba(16,185,129,.15) !important}
+html.dark .bg-amber-50{background:rgba(245,158,11,.15) !important}
+html.dark .text-gray-600,html.dark .text-gray-500{color:#94a3b8 !important}
+html.dark .text-gray-700{color:#cbd5e1 !important}
+html.dark .text-gray-800,html.dark .text-slate-800{color:#e2e8f0 !important}
+html.dark .text-gray-900{color:#f1f5f9 !important}
+html.dark .border-gray-200,html.dark .border-gray-300,html.dark .border{border-color:#334155 !important}
+html.dark .shadow-lg,html.dark .shadow-xl{box-shadow:0 10px 40px rgba(0,0,0,.3) !important}
+html.dark .hover\:bg-gray-50:hover{background:#334155 !important}
+html.dark .hover\:bg-gray-100:hover{background:#475569 !important}
+html.dark input,html.dark textarea,html.dark select{background:#1e293b;color:#e2e8f0;border-color:#475569}
+html.dark .sidebar-link.active{background:rgba(99,102,241,.15)}
+html.dark .payment-card{border-color:#475569}
+html.dark .payment-card.selected{border-color:#6366f1;background:rgba(99,102,241,.15)}
+html.dark .stat-glow{box-shadow:0 0 30px rgba(99,102,241,.15),0 10px 40px rgba(0,0,0,.3)}
+html.dark .glass-card{background:rgba(30,41,59,.7);border-color:rgba(71,85,105,.3)}
+html.dark .border-b{border-color:#334155 !important}
+html.dark .bg-slate-900{background:#020617 !important}
+html.dark .mobile-menu{background:#1e293b}
+html.dark .glass-card{background:rgba(30,41,59,.6);border-color:rgba(71,85,105,.3);box-shadow:0 8px 32px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.05)}
+html.dark .glass-card:hover{background:rgba(30,41,59,.8);box-shadow:0 20px 60px rgba(99,102,241,.15),0 0 0 1px rgba(99,102,241,.2),inset 0 1px 0 rgba(255,255,255,.08)}
+html.dark .bg-gradient-to-r{--tw-gradient-from:#e2e8f0;--tw-gradient-to:#e2e8f0}
+html.dark header{background:rgba(15,23,42,.8) !important;border-color:rgba(71,85,105,.3) !important}
+html.dark footer{background:#020617}
+html.dark .neon-text{text-shadow:0 0 40px rgba(129,140,248,.5)}
+html.dark .neon-glow{box-shadow:0 0 25px rgba(129,140,248,.4),0 0 80px rgba(129,140,248,.15)}
+html.dark .glass-light{background:rgba(30,41,59,.5);border-color:rgba(71,85,105,.3)}
+html.dark .bg-clip-text{--tw-gradient-from:#e2e8f0 !important;--tw-gradient-via:#a5b4fc !important;--tw-gradient-to:#e2e8f0 !important;background-image:linear-gradient(to right,var(--tw-gradient-from),var(--tw-gradient-via),var(--tw-gradient-to)) !important}
+/* Skeleton shimmer */
+@keyframes skeletonShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skeleton-block{background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%);background-size:200% 100%;animation:skeletonShimmer 1.5s ease-in-out infinite;border-radius:8px}
+html.dark .skeleton-block{background:linear-gradient(90deg,#334155 25%,#475569 50%,#334155 75%);background-size:200% 100%}
+/* Stagger entrance */
+@keyframes staggerIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.stagger-in{animation:staggerIn .5s ease forwards;opacity:0}
+/* Carousel */
+.featured-carousel{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 0}
+.featured-carousel::-webkit-scrollbar{display:none}
+.featured-carousel .carousel-card{min-width:300px;max-width:340px;flex-shrink:0;scroll-snap-align:start}
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:all .2s}
+.carousel-arrow:hover{transform:translateY(-50%) scale(1.1)}
+.carousel-arrow.left{left:-22px}
+.carousel-arrow.right{right:-22px}
+@media(max-width:768px){.carousel-arrow.left{left:4px}.carousel-arrow.right{right:4px}}
+/* Search autocomplete dropdown */
+#search-dropdown{position:absolute;top:100%;left:0;right:0;z-index:50;margin-top:8px;max-height:320px;overflow-y:auto;display:none}
+#search-dropdown.show{display:block}
+</style>
+</head>
+<body class="min-h-screen">
+<!-- Toast -->
+<div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+<!-- Mobile menu overlay -->
+<div id="mobile-overlay" class="overlay fixed inset-0 bg-black/50 z-40" onclick="toggleMobileMenu()"></div>
+<div id="mobile-menu" class="mobile-menu fixed top-0 start-0 h-full w-72 bg-white z-50 shadow-2xl flex flex-col">
+  <div class="p-6 border-b flex items-center justify-between">
+    <a href="#home" class="flex items-center gap-1"><img src="logo-t.png" alt="SYNKEM" class="h-10 w-auto drop-shadow-sm"><span class="text-base font-semibold tracking-[0.18em] uppercase text-slate-800" style="letter-spacing:0.18em">SYNKEM</span></a>
+    <button onclick="toggleMobileMenu()" class="p-2 hover:bg-gray-100 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+  </div>
+  <nav class="flex-1 p-4 space-y-1">
+    <a href="#home" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-lg hover:bg-gray-50 font-medium" data-i18n="nav_home"></a>
+    <a href="#home" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-lg hover:bg-gray-50 font-medium" data-i18n="nav_jobs"></a>
+    <a href="#track" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-lg hover:bg-gray-50 font-medium" data-i18n="nav_track"></a>
+  </nav>
+  <div class="p-4 border-t"><div class="flex gap-2">
+    <button onclick="setLang('ar');toggleMobileMenu()" class="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200">عربي</button>
+    <button onclick="setLang('en');toggleMobileMenu()" class="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200">EN</button>
+    <button onclick="setLang('ru');toggleMobileMenu()" class="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200">RU</button>
+  </div></div>
+</div>
+
+<!-- PUBLIC HEADER -->
+<header id="public-header" class="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-[0_2px_20px_rgba(0,0,0,.04)]">
+  <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="#home" class="flex items-center gap-0"><img src="logo-t.png" alt="SYNKEM" class="h-10 w-auto drop-shadow-sm -mr-2"><span class="text-lg font-bold tracking-[0.18em] uppercase text-slate-800 hidden sm:block" style="letter-spacing:0.18em">SYNKEM</span></a>
+    <nav class="hidden md:flex items-center gap-1">
+      <a href="#home" class="text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50 px-4 py-2 rounded-xl transition" data-i18n="nav_home"></a>
+      <a href="#home" class="text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50 px-4 py-2 rounded-xl transition" data-i18n="nav_jobs"></a>
+      <a href="#track" class="text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50 px-4 py-2 rounded-xl transition" data-i18n="nav_track"></a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <div class="hidden md:flex items-center gap-0.5 bg-gray-100/60 backdrop-blur rounded-xl p-1">
+        <button onclick="setLang('ar')" class="lang-btn px-3 py-1.5 rounded-lg text-xs font-medium transition" data-lang="ar">عربي</button>
+        <button onclick="setLang('en')" class="lang-btn px-3 py-1.5 rounded-lg text-xs font-medium transition" data-lang="en">EN</button>
+        <button onclick="setLang('ru')" class="lang-btn px-3 py-1.5 rounded-lg text-xs font-medium transition" data-lang="ru">RU</button>
+      </div>
+      <button onclick="toggleTheme()" class="p-2 hover:bg-gray-100/60 dark:hover:bg-gray-700/60 rounded-xl transition" title="Toggle theme">
+        <svg class="theme-icon-sun w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <svg class="theme-icon-moon w-5 h-5 text-gray-600 dark:text-gray-300" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+      <button onclick="toggleMobileMenu()" class="md:hidden p-2 hover:bg-gray-100/60 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    </div>
+  </div>
+</header>
+<!-- ========== PAGE: HOME ========== -->
+<div id="page-home" class="page">
+<section class="relative hero-gradient text-white overflow-hidden min-h-[600px] flex items-center">
+  <div class="absolute inset-0 grid-pattern opacity-10"></div>
+  <!-- Mesh gradient orbs -->
+  <div class="mesh-orb w-[500px] h-[500px] bg-indigo-600 top-[-100px] left-[-100px]" style="animation-delay:0s"></div>
+  <div class="mesh-orb w-[400px] h-[400px] bg-violet-600 bottom-[-50px] right-[-50px]" style="animation-delay:-5s"></div>
+  <div class="mesh-orb w-[300px] h-[300px] bg-blue-500 top-[40%] left-[50%]" style="animation-delay:-10s;opacity:.2"></div>
+  <div class="mesh-orb w-[200px] h-[200px] bg-fuchsia-500 top-[20%] right-[20%]" style="animation-delay:-15s;opacity:.15"></div>
+  <div class="relative max-w-7xl mx-auto px-4 py-28 md:py-36 text-center w-full">
+    <div class="inline-flex items-center gap-2 glass rounded-full px-5 py-2 mb-8 text-sm"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span><span data-i18n="hero_badge" class="text-white/80">Trusted by 80+ companies</span></div>
+    <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-[1.1] text-white neon-text" data-i18n="hero_title"></h1>
+    <p class="text-lg md:text-xl text-white/60 mb-12 max-w-2xl mx-auto" data-i18n="hero_subtitle"></p>
+    <div class="max-w-xl mx-auto relative">
+      <div class="glass rounded-2xl p-2 flex gap-2">
+        <input id="hero-search" type="text" data-i18n-placeholder="hero_search" class="flex-1 px-5 py-3.5 rounded-xl text-white bg-white/10 border-0 placeholder-white/40 focus:ring-2 focus:ring-indigo-400 focus:bg-white/15 transition" oninput="onSearchInput(this.value)" autocomplete="off">
+        <button onclick="doHeroSearch()" class="px-8 py-3.5 bg-indigo-500 hover:bg-indigo-400 text-white font-semibold rounded-xl neon-glow-sm transition-all hover:scale-105" data-i18n="hero_btn"></button>
+      </div>
+      <div id="search-dropdown" class="glass-card rounded-2xl overflow-hidden shadow-2xl"></div>
+    </div>
+  </div>
+</section>
+<!-- Stats - Bento Grid -->
+<section class="max-w-7xl mx-auto px-4 -mt-16 relative z-10">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+    <div class="glass-card rounded-3xl p-6 md:p-8 text-center card-hover scroll-reveal group relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+        <div class="text-3xl md:text-4xl font-extrabold text-slate-800 ltr-nums" data-counter="250">0</div>
+        <div class="text-sm text-gray-500 mt-1" data-i18n="stats_jobs"></div>
+      </div>
+    </div>
+    <div class="glass-card rounded-3xl p-6 md:p-8 text-center card-hover scroll-reveal group relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-200"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
+        <div class="text-3xl md:text-4xl font-extrabold text-slate-800 ltr-nums" data-counter="80">0</div>
+        <div class="text-sm text-gray-500 mt-1" data-i18n="stats_companies"></div>
+      </div>
+    </div>
+    <div class="glass-card rounded-3xl p-6 md:p-8 text-center card-hover scroll-reveal group relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+        <div class="text-3xl md:text-4xl font-extrabold text-slate-800 ltr-nums" data-counter="5000">0</div>
+        <div class="text-sm text-gray-500 mt-1" data-i18n="stats_applicants"></div>
+      </div>
+    </div>
+    <div class="glass-card rounded-3xl p-6 md:p-8 text-center card-hover scroll-reveal group relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-12 h-12 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-200"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+        <div class="text-3xl md:text-4xl font-extrabold text-slate-800 ltr-nums" data-counter="1200">0</div>
+        <div class="text-sm text-gray-500 mt-1" data-i18n="stats_hired"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- How It Works -->
+<section class="max-w-7xl mx-auto px-4 py-24 scroll-reveal">
+  <div class="text-center mb-16"><span class="inline-block text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50/80 backdrop-blur px-5 py-2 rounded-full mb-4 border border-indigo-100" data-i18n="section_how">How It Works</span><h2 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 via-indigo-700 to-slate-800 bg-clip-text text-transparent" data-i18n="how_it_works"></h2></div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="glass-card rounded-3xl p-8 text-center card-hover group relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-indigo-200/50 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-indigo-300/30 transition-all">01</div>
+        <h3 class="font-bold text-lg mb-2" data-i18n="step1_title"></h3>
+        <p class="text-sm text-gray-500 leading-relaxed" data-i18n="step1_desc"></p>
+      </div>
+    </div>
+    <div class="glass-card rounded-3xl p-8 text-center card-hover group relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-blue-200/50 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-blue-300/30 transition-all">02</div>
+        <h3 class="font-bold text-lg mb-2" data-i18n="step2_title"></h3>
+        <p class="text-sm text-gray-500 leading-relaxed" data-i18n="step2_desc"></p>
+      </div>
+    </div>
+    <div class="glass-card rounded-3xl p-8 text-center card-hover group relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-violet-200/50 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-violet-300/30 transition-all">03</div>
+        <h3 class="font-bold text-lg mb-2" data-i18n="step3_title"></h3>
+        <p class="text-sm text-gray-500 leading-relaxed" data-i18n="step3_desc"></p>
+      </div>
+    </div>
+    <div class="glass-card rounded-3xl p-8 text-center card-hover group relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-emerald-200/50 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-emerald-300/30 transition-all">04</div>
+        <h3 class="font-bold text-lg mb-2" data-i18n="step4_title"></h3>
+        <p class="text-sm text-gray-500 leading-relaxed" data-i18n="step4_desc"></p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Featured Jobs Carousel -->
+<section class="max-w-7xl mx-auto px-4 py-16 scroll-reveal">
+  <div class="text-center mb-10"><span class="inline-block text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50/80 backdrop-blur px-5 py-2 rounded-full mb-4 border border-indigo-100" data-i18n="section_featured">Featured</span><h2 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 via-indigo-700 to-slate-800 bg-clip-text text-transparent" data-i18n="featured_heading">Top Picks This Week</h2></div>
+  <div class="relative">
+    <button onclick="scrollCarousel(-1)" class="carousel-arrow left glass-card" aria-label="Previous"><svg class="w-5 h-5 text-gray-600 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+    <div id="featured-carousel" class="featured-carousel"></div>
+    <button onclick="scrollCarousel(1)" class="carousel-arrow right glass-card" aria-label="Next"><svg class="w-5 h-5 text-gray-600 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</section>
+<!-- Filters + Jobs -->
+<section class="max-w-7xl mx-auto px-4 pb-8">
+  <div class="text-center mb-10"><span class="inline-block text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50/80 backdrop-blur px-5 py-2 rounded-full mb-4 border border-indigo-100" data-i18n="section_opportunities">Opportunities</span><h2 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 via-indigo-700 to-slate-800 bg-clip-text text-transparent" data-i18n="featured_jobs"></h2></div>
+  <div class="glass-card rounded-2xl p-4 mb-6 flex flex-wrap items-center gap-3">
+    <select id="filter-cat" onchange="applyFilters()" class="px-4 py-2.5 border border-gray-200/60 rounded-xl text-sm bg-white/80 backdrop-blur focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"></select>
+    <select id="filter-city" onchange="applyFilters()" class="px-4 py-2.5 border border-gray-200/60 rounded-xl text-sm bg-white/80 backdrop-blur focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"></select>
+    <div id="filter-type-chips" class="flex flex-wrap gap-2"></div>
+    <span id="filter-count" class="ml-auto text-sm text-gray-500 font-medium ltr-nums"></span>
+  </div>
+  <div id="job-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  <div id="show-more-wrap" class="text-center mt-10 hidden"><button onclick="showMoreJobs()" class="px-10 py-3.5 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white rounded-2xl font-semibold shadow-lg shadow-indigo-200/50 transition-all hover:scale-105 hover:shadow-xl" data-i18n="show_more"></button></div>
+</section>
+<!-- Categories -->
+<section class="max-w-7xl mx-auto px-4 py-24 scroll-reveal">
+  <div class="text-center mb-14"><span class="inline-block text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50/80 backdrop-blur px-5 py-2 rounded-full mb-4 border border-indigo-100" data-i18n="section_browse">Browse</span><h2 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 via-indigo-700 to-slate-800 bg-clip-text text-transparent" data-i18n="categories"></h2></div>
+  <div id="cat-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+</section>
+<!-- Testimonials -->
+<section class="relative py-24 scroll-reveal overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-b from-slate-50/80 via-indigo-50/30 to-slate-50/80"></div>
+  <div class="relative max-w-7xl mx-auto px-4">
+    <div class="text-center mb-16"><span class="inline-block text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50/80 backdrop-blur px-5 py-2 rounded-full mb-4 border border-indigo-100" data-i18n="testimonials_badge">Testimonials</span><h2 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 via-indigo-700 to-slate-800 bg-clip-text text-transparent" data-i18n="testimonials_title">What People Say</h2></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="glass-card rounded-3xl p-7 card-hover group relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative">
+        <div class="flex items-center gap-3 mb-4"><div class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-200/50">AH</div><div><div class="font-semibold text-sm" data-i18n="testimonial1_name">Ahmed Hassan</div><div class="text-xs text-gray-400" data-i18n="testimonial1_role">Software Engineer</div></div></div>
+        <div class="flex gap-0.5 mb-3"><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+        <p class="text-sm text-gray-600 leading-relaxed" data-i18n="testimonial1_text">"Found my dream job within a week. The process was smooth and professional."</p>
+        </div>
+      </div>
+      <div class="glass-card rounded-3xl p-7 card-hover group relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative">
+        <div class="flex items-center gap-3 mb-4"><div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-200/50">FA</div><div><div class="font-semibold text-sm" data-i18n="testimonial2_name">Fatma Ali</div><div class="text-xs text-gray-400" data-i18n="testimonial2_role">Marketing Manager</div></div></div>
+        <div class="flex gap-0.5 mb-3"><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+        <p class="text-sm text-gray-600 leading-relaxed" data-i18n="testimonial2_text">"Excellent platform! Got hired at Orange Egypt. The tracking system is very convenient."</p>
+        </div>
+      </div>
+      <div class="glass-card rounded-3xl p-7 card-hover group relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative">
+        <div class="flex items-center gap-3 mb-4"><div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-200/50">OK</div><div><div class="font-semibold text-sm" data-i18n="testimonial3_name">Omar Khaled</div><div class="text-xs text-gray-400" data-i18n="testimonial3_role">Accountant</div></div></div>
+        <div class="flex gap-0.5 mb-3"><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+        <p class="text-sm text-gray-600 leading-relaxed" data-i18n="testimonial3_text">"The payment system is simple and reliable. Highly recommend for job seekers in Egypt."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- CTA -->
+<section class="max-w-7xl mx-auto px-4 py-24 scroll-reveal">
+  <div class="relative hero-gradient rounded-[2rem] p-12 md:p-20 text-center text-white overflow-hidden">
+    <div class="absolute inset-0 grid-pattern opacity-10"></div>
+    <div class="mesh-orb w-[300px] h-[300px] bg-indigo-500 top-[-80px] right-[-80px]" style="animation-delay:-3s;opacity:.25"></div>
+    <div class="mesh-orb w-[250px] h-[250px] bg-violet-500 bottom-[-60px] left-[-60px]" style="animation-delay:-8s;opacity:.2"></div>
+    <div class="relative">
+      <h2 class="text-3xl md:text-5xl font-extrabold mb-5 neon-text" data-i18n="cta_title">Ready to Start Your Career?</h2>
+      <p class="text-white/60 mb-10 max-w-xl mx-auto text-lg" data-i18n="cta_subtitle">Browse hundreds of opportunities and find the perfect job for you today.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#home" class="px-10 py-4 bg-white text-indigo-700 font-bold rounded-2xl hover:bg-indigo-50 transition-all shadow-lg shadow-white/20 hover:scale-105 hover:shadow-xl" data-i18n="cta_browse">Browse Jobs</a>
+        <a href="#track" class="px-10 py-4 glass text-white font-bold rounded-2xl hover:bg-white/15 transition-all hover:scale-105" data-i18n="cta_track">Track Application</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Footer -->
+<footer class="relative bg-slate-900 text-gray-400 mt-12 overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950/40"></div>
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent"></div>
+  <div class="relative max-w-7xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-3 gap-10">
+    <div>
+      <div class="mb-3 flex items-center gap-0"><img src="logo-t.png" alt="SYNKEM" class="h-10 w-auto -mr-1"><span class="text-lg font-bold tracking-[0.18em] uppercase text-white" style="letter-spacing:0.18em">SYNKEM</span></div>
+      <p class="text-sm leading-relaxed" data-i18n="footer_desc"></p>
+      <div class="flex gap-3 mt-5">
+        <a href="#" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-indigo-600 hover:border-indigo-600 transition-all text-gray-400 hover:text-white"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.5 6.5c-.8.4-1.7.6-2.6.7.9-.6 1.6-1.4 2-2.5-.9.5-1.8.9-2.9 1.1a4.5 4.5 0 00-7.7 4.1C8.2 9.7 4.7 7.8 2.4 5a4.5 4.5 0 001.4 6c-.7 0-1.4-.2-2-.5a4.5 4.5 0 003.6 4.5c-.7.2-1.4.2-2.1.1a4.5 4.5 0 004.2 3.1A9 9 0 011 20a12.8 12.8 0 006.9 2c8.3 0 12.8-6.9 12.8-12.8v-.6c.9-.6 1.6-1.4 2.2-2.3z"/></svg></a>
+        <a href="#" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-indigo-600 hover:border-indigo-600 transition-all text-gray-400 hover:text-white"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.4 20.4h-3.5v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6h.1a3.7 3.7 0 013.3-1.9c3.6 0 4.3 2.4 4.3 5.5v6.3zM5.3 7.4a2 2 0 110-4.1 2 2 0 010 4.1zM7.1 20.4H3.6V9h3.5v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.8v20.4C0 23.2.8 24 1.8 24h20.4c1 0 1.8-.8 1.8-1.8V1.8C24 .8 23.2 0 22.2 0z"/></svg></a>
+      </div>
+    </div>
+    <div><h4 class="text-white font-semibold mb-4" data-i18n="footer_links"></h4><ul class="space-y-2.5 text-sm"><li><a href="#home" class="hover:text-indigo-400 transition" data-i18n="nav_home"></a></li><li><a href="#track" class="hover:text-indigo-400 transition" data-i18n="nav_track"></a></li><li><a href="#admin-login" class="hover:text-indigo-400 transition" data-i18n="nav_admin"></a></li></ul></div>
+    <div><h4 class="text-white font-semibold mb-4" data-i18n="footer_legal"></h4><ul class="space-y-2.5 text-sm"><li><a href="#terms" class="hover:text-indigo-400 transition" data-i18n="footer_terms"></a></li><li><a href="#privacy" class="hover:text-indigo-400 transition" data-i18n="footer_privacy"></a></li><li><a href="#faq" class="hover:text-indigo-400 transition" data-i18n="footer_faq"></a></li><li><a href="#about" class="hover:text-indigo-400 transition" data-i18n="nav_about"></a></li><li><a href="#contact" class="hover:text-indigo-400 transition" data-i18n="nav_contact"></a></li></ul></div>
+  </div>
+  <div class="relative border-t border-white/5 py-5 text-center text-xs text-gray-500">&copy; 2026 SYNKEM. <span data-i18n="footer_rights"></span></div>
+</footer>
+</div>
+<!-- ========== PAGE: JOB DETAIL ========== -->
+<div id="page-job" class="page">
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <button onclick="goBack()" class="glass-card rounded-xl px-4 py-2 flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-700 mb-6 transition"><svg class="w-4 h-4 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span data-i18n="back"></span></button>
+  <div id="job-detail-content"></div>
+</div>
+</div>
+
+<!-- ========== PAGE: APPLY ========== -->
+<div id="page-apply" class="page">
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <button onclick="location.hash='#job?id='+state.currentJob" class="glass-card rounded-xl px-4 py-2 flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-700 mb-6 transition"><svg class="w-4 h-4 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span data-i18n="back"></span></button>
+  <div class="glass-card rounded-3xl p-7 md:p-10">
+    <h2 class="text-2xl font-bold mb-1" data-i18n="apply_title"></h2>
+    <p id="apply-job-ref" class="text-sm text-gray-500 mb-6"></p>
+    <div class="space-y-5">
+      <div><label class="block text-sm font-medium mb-1" data-i18n="full_name"></label><input id="apply-name" type="text" class="w-full px-4 py-2.5 border bg-white/60 backdrop-blur rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"></div>
+      <div><label class="block text-sm font-medium mb-1" data-i18n="email"></label><input id="apply-email" type="email" class="w-full px-4 py-2.5 border bg-white/60 backdrop-blur rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"></div>
+      <div><label class="block text-sm font-medium mb-1" data-i18n="phone"></label><input id="apply-phone" type="tel" placeholder="+20" class="w-full px-4 py-2.5 border bg-white/60 backdrop-blur rounded-2xl ltr-nums focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"></div>
+      <div><label class="block text-sm font-medium mb-1" data-i18n="cover_letter"></label><textarea id="apply-cover" rows="4" data-i18n-placeholder="cover_letter_placeholder" class="w-full px-4 py-2.5 border bg-white/60 backdrop-blur rounded-2xl resize-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"></textarea></div>
+      <div><label class="block text-sm font-medium mb-1" data-i18n="upload_cv"></label>
+        <div class="glass-card border-0 rounded-2xl p-8 text-center cursor-pointer hover:bg-white/90 transition">
+          <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          <p class="text-sm text-gray-500" data-i18n="upload_cv"></p>
+          <p class="text-xs text-gray-400 mt-1" data-i18n="upload_cv_hint"></p>
+        </div>
+      </div>
+      <label class="flex items-start gap-3 cursor-pointer"><input id="apply-terms" type="checkbox" class="mt-1 w-4 h-4 text-primary-600 rounded"><span class="text-sm text-gray-600" data-i18n="agree_terms"></span></label>
+      <button onclick="submitApplication()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white font-semibold rounded-2xl neon-glow-sm hover:scale-[1.02] transition flex items-center justify-center gap-2"><span data-i18n="proceed_payment"></span><span id="apply-fee-badge" class="bg-white/20 px-2 py-0.5 rounded-lg text-sm ltr-nums"></span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== PAGE: PAYMENT ========== -->
+<div id="page-payment" class="page">
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="relative overflow-hidden bg-gradient-to-r from-indigo-700 via-indigo-800 to-slate-900 rounded-3xl p-6 text-white text-center mb-6">
+    <div class="mesh-orb w-32 h-32 bg-indigo-400/30 -top-10 -left-10" style="animation-delay:-3s"></div>
+    <div class="mesh-orb w-24 h-24 bg-purple-400/20 -bottom-8 -right-8" style="animation-delay:-7s"></div>
+    <p class="relative text-sm opacity-80" data-i18n="payment_amount"></p>
+    <p id="payment-amount" class="relative text-4xl font-extrabold mt-1 ltr-nums"></p>
+  </div>
+  <div class="glass-card rounded-3xl overflow-hidden">
+    <div class="flex border-b">
+      <button onclick="setPayTab('auto')" id="pay-tab-auto" class="flex-1 py-3 text-sm font-medium text-center tab-active transition" data-i18n="pay_auto"></button>
+      <button onclick="setPayTab('manual')" id="pay-tab-manual" class="flex-1 py-3 text-sm font-medium text-center text-gray-500 transition" data-i18n="pay_manual"></button>
+    </div>
+    <div id="pay-auto-content" class="p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+        <label class="payment-card glass-card rounded-2xl p-4 flex items-center gap-3 cursor-pointer" onclick="selectPayMethod(this,'vodafone')"><input type="radio" name="pay-method" value="vodafone" class="hidden"><div class="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">VC</div><span class="font-medium text-sm">Vodafone Cash</span></label>
+        <label class="payment-card glass-card rounded-2xl p-4 flex items-center gap-3 cursor-pointer" onclick="selectPayMethod(this,'instapay')"><input type="radio" name="pay-method" value="instapay" class="hidden"><div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">IP</div><span class="font-medium text-sm">InstaPay</span></label>
+        <label class="payment-card glass-card rounded-2xl p-4 flex items-center gap-3 cursor-pointer" onclick="selectPayMethod(this,'orange')"><input type="radio" name="pay-method" value="orange" class="hidden"><div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">OC</div><span class="font-medium text-sm">Orange Cash</span></label>
+        <label class="payment-card glass-card rounded-2xl p-4 flex items-center gap-3 cursor-pointer" onclick="selectPayMethod(this,'etisalat')"><input type="radio" name="pay-method" value="etisalat" class="hidden"><div class="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center font-bold text-sm">EC</div><span class="font-medium text-sm">Etisalat Cash</span></label>
+      </div>
+      <button onclick="processPayment()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white font-semibold rounded-2xl neon-glow-sm hover:scale-[1.02] transition" data-i18n="pay_btn"></button>
+    </div>
+    <div id="pay-manual-content" class="p-6 hidden">
+      <div class="glass-card rounded-2xl p-4 mb-4 space-y-3">
+        <p class="text-sm font-medium" data-i18n="transfer_to"></p>
+        <div class="flex items-center justify-between bg-white/60 backdrop-blur rounded-xl p-3 border"><div><div class="text-xs text-gray-500">Vodafone Cash</div><div class="font-mono text-sm ltr-nums">010 123 456 78</div></div><button onclick="copyText('01012345678')" class="text-indigo-700 hover:text-primary-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></button></div>
+        <div class="flex items-center justify-between bg-white/60 backdrop-blur rounded-xl p-3 border"><div><div class="text-xs text-gray-500">InstaPay</div><div class="font-mono text-sm ltr-nums">synkem@instapay</div></div><button onclick="copyText('synkem@instapay')" class="text-indigo-700 hover:text-primary-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></button></div>
+      </div>
+      <div class="mb-4"><label class="block text-sm font-medium mb-1" data-i18n="upload_receipt"></label><div class="glass-card border-0 rounded-2xl p-6 text-center cursor-pointer hover:bg-white/90 transition"><svg class="w-8 h-8 mx-auto text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><p class="text-xs text-gray-400" data-i18n="upload_receipt_hint"></p></div></div>
+      <button onclick="processPayment()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white font-semibold rounded-2xl neon-glow-sm hover:scale-[1.02] transition" data-i18n="confirm_payment"></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== PAGE: SUCCESS ========== -->
+<div id="page-success" class="page">
+<div class="max-w-lg mx-auto px-4 py-16 text-center">
+  <div class="relative w-24 h-24 mx-auto mb-6">
+    <div class="absolute inset-0 rounded-full bg-green-100 pulse-ring"></div>
+    <div class="relative w-24 h-24 rounded-full bg-green-500 flex items-center justify-center">
+      <svg class="check-svg w-12 h-12 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path class="check-path" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    </div>
+  </div>
+  <h2 class="text-2xl font-bold mb-2" data-i18n="success_title"></h2>
+  <p class="text-gray-500 mb-6" data-i18n="success_subtitle"></p>
+  <div class="relative overflow-hidden bg-gradient-to-r from-indigo-700 via-indigo-800 to-slate-900 rounded-3xl p-8 mb-4">
+    <div class="mesh-orb w-28 h-28 bg-indigo-400/30 -top-8 -left-8" style="animation-delay:-5s"></div>
+    <div class="mesh-orb w-20 h-20 bg-purple-400/20 -bottom-6 -right-6" style="animation-delay:-10s"></div>
+    <p class="relative text-sm text-indigo-200 mb-2" data-i18n="your_code"></p>
+    <p id="success-code" class="relative text-3xl font-mono font-bold text-white tracking-wider ltr-nums"></p>
+  </div>
+  <button onclick="copyTrackingCode()" class="glass-card px-6 py-2.5 text-indigo-700 font-semibold rounded-xl hover:bg-white/90 transition mb-4" data-i18n="copy_code"></button>
+  <p class="text-sm text-gray-400 mb-6" data-i18n="code_sent_email"></p>
+  <a href="#track" class="text-indigo-700 hover:underline font-medium" data-i18n="track_link"></a>
+</div>
+<div id="confetti-container"></div>
+</div>
+
+<!-- ========== PAGE: TRACK ========== -->
+<div id="page-track" class="page">
+<div class="max-w-2xl mx-auto px-4 py-12">
+  <div class="text-center mb-8">
+    <h2 class="text-3xl font-bold mb-2" data-i18n="track_title"></h2>
+    <p class="text-gray-500" data-i18n="track_subtitle"></p>
+  </div>
+  <div class="glass-card rounded-2xl p-2 flex gap-2 mb-8">
+    <input id="track-input" type="text" data-i18n-placeholder="track_placeholder" class="flex-1 px-5 py-3 bg-white/60 backdrop-blur border-0 rounded-xl font-mono ltr-nums focus:ring-2 focus:ring-indigo-200">
+    <button onclick="doTrack()" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white font-semibold rounded-2xl neon-glow-sm transition" data-i18n="track_btn"></button>
+  </div>
+  <div id="track-result"></div>
+</div>
+</div>
+<!-- ========== PAGE: ABOUT ========== -->
+<div id="page-about" class="page">
+<div class="max-w-3xl mx-auto px-4 py-12">
+  <button onclick="goBack()" class="glass-card rounded-xl px-4 py-2 flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-700 mb-6 transition"><svg class="w-4 h-4 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span data-i18n="back"></span></button>
+  <div class="glass-card rounded-3xl p-8 md:p-12">
+    <div class="flex items-center gap-3 mb-8"><div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div><h1 class="text-3xl font-bold" data-i18n="about_title"></h1></div>
+    <div class="space-y-4 text-gray-600 leading-relaxed">
+      <p data-i18n="about_p1"></p>
+      <p data-i18n="about_p2"></p>
+      <p data-i18n="about_p3"></p>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+      <div class="text-center p-4 bg-indigo-50 rounded-xl"><div class="text-2xl font-bold text-indigo-700">500+</div><div class="text-xs text-gray-500 mt-1" data-i18n="stats_jobs"></div></div>
+      <div class="text-center p-4 bg-blue-50 rounded-xl"><div class="text-2xl font-bold text-blue-700">80+</div><div class="text-xs text-gray-500 mt-1" data-i18n="stats_companies"></div></div>
+      <div class="text-center p-4 bg-emerald-50 rounded-xl"><div class="text-2xl font-bold text-emerald-700">12K+</div><div class="text-xs text-gray-500 mt-1" data-i18n="stats_applicants"></div></div>
+      <div class="text-center p-4 bg-amber-50 rounded-xl"><div class="text-2xl font-bold text-amber-700">3.2K</div><div class="text-xs text-gray-500 mt-1" data-i18n="stats_hired"></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== PAGE: TERMS ========== -->
+<div id="page-terms" class="page">
+<div class="max-w-3xl mx-auto px-4 py-12">
+  <button onclick="goBack()" class="glass-card rounded-xl px-4 py-2 flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-700 mb-6 transition"><svg class="w-4 h-4 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span data-i18n="back"></span></button>
+  <div class="glass-card rounded-3xl p-8 md:p-12">
+    <div class="flex items-center gap-3 mb-8"><div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div><h1 class="text-3xl font-bold" data-i18n="terms_title"></h1></div>
+    <p class="text-gray-500 mb-6" data-i18n="terms_intro"></p>
+    <div class="space-y-6 text-gray-600 text-sm leading-relaxed">
+      <div><h3 class="font-semibold text-gray-800 mb-2">1. General</h3><p>By accessing and using the SYNKEM platform, you accept and agree to be bound by the terms and provision of this agreement. The platform provides job listing services connecting employers with job seekers in Egypt.</p></div>
+      <div><h3 class="font-semibold text-gray-800 mb-2">2. CV Review Fee</h3><p>A non-refundable CV review fee is charged for each application. This fee covers the processing and review of your application by the employer. Fee amounts are displayed clearly on each job listing.</p></div>
+      <div><h3 class="font-semibold text-gray-800 mb-2">3. User Obligations</h3><p>Users must provide accurate and truthful information in their applications. Any falsification of data may result in the rejection of applications and potential banning from the platform.</p></div>
+      <div><h3 class="font-semibold text-gray-800 mb-2">4. Payment Terms</h3><p>All payments are processed securely through our supported payment methods. Once a payment is confirmed, it cannot be reversed. Users will receive a unique tracking code for their application.</p></div>
+      <div><h3 class="font-semibold text-gray-800 mb-2">5. Limitation of Liability</h3><p>SYNKEM acts as an intermediary platform and does not guarantee employment. We are not responsible for employer decisions, interview outcomes, or any disputes between employers and applicants.</p></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== PAGE: PRIVACY ========== -->
+<div id="page-privacy" class="page">
+<div class="max-w-3xl mx-auto px-4 py-12">
+  <button onclick="goBack()" class="glass-card rounded-xl px-4 py-2 flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-700 mb-6 transition"><svg class="w-4 h-4 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span data-i18n="back"></span></button>
+  <div class="glass-card rounded-3xl p-8 md:p-12">
+    <div class="flex items-center gap-3 mb-8"><div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div><h1 class="text-3xl font-bold" data-i18n="privacy_title"></h1></div>
+    <p class="text-gray-500 mb-6" data-i18n="privacy_intro"></p>
+    <div class="space-y-6 text-gray-600 text-sm leading-relaxed">
+      <div><h3 class="font-semibold text-gray-800 mb-2">Data Collection</h3><p>We collect personal information you provide when applying for jobs: name, email, phone number, CV, and cover letter. Payment information is processed securely through third-party providers.</p></div>
+      <div><h3 class="font-semibold text-gray-800 mb-2">Data Usage</h3><p>Your data is used exclusively for job application processing and communication regarding your applications. We do not sell or share your personal data with third parties for marketing purposes.</p></div>
+      <div><h3 class="font-semibold text-gray-800 mb-2">Data Storage</h3><p>All personal data is stored securely with encryption. CV files are stored in protected directories accessible only to authorized personnel.</p></div>
+      <div><h3 class="font-semibold text-gray-800 mb-2">Data Retention</h3><p>Application data is retained for 12 months after submission. You may request deletion of your data by contacting our support team.</p></div>
+      <div><h3 class="font-semibold text-gray-800 mb-2">Cookies</h3><p>We use essential cookies for language preferences and session management. No tracking cookies are used without your explicit consent.</p></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== PAGE: FAQ ========== -->
+<div id="page-faq" class="page">
+<div class="max-w-3xl mx-auto px-4 py-12">
+  <button onclick="goBack()" class="glass-card rounded-xl px-4 py-2 flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-700 mb-6 transition"><svg class="w-4 h-4 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span data-i18n="back"></span></button>
+  <div class="glass-card rounded-3xl p-8 md:p-12">
+    <div class="flex items-center gap-3 mb-8"><div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><h1 class="text-3xl font-bold" data-i18n="faq_title"></h1></div>
+    <div class="space-y-3" id="faq-list">
+      <div class="border rounded-xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-4 text-left font-medium hover:bg-gray-50 transition"><span data-i18n="faq1_q"></span><svg class="w-5 h-5 text-gray-400 shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button><div class="hidden px-4 pb-4 text-sm text-gray-600" data-i18n="faq1_a"></div></div>
+      <div class="border rounded-xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-4 text-left font-medium hover:bg-gray-50 transition"><span data-i18n="faq2_q"></span><svg class="w-5 h-5 text-gray-400 shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button><div class="hidden px-4 pb-4 text-sm text-gray-600" data-i18n="faq2_a"></div></div>
+      <div class="border rounded-xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-4 text-left font-medium hover:bg-gray-50 transition"><span data-i18n="faq3_q"></span><svg class="w-5 h-5 text-gray-400 shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button><div class="hidden px-4 pb-4 text-sm text-gray-600" data-i18n="faq3_a"></div></div>
+      <div class="border rounded-xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-4 text-left font-medium hover:bg-gray-50 transition"><span data-i18n="faq4_q"></span><svg class="w-5 h-5 text-gray-400 shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button><div class="hidden px-4 pb-4 text-sm text-gray-600" data-i18n="faq4_a"></div></div>
+      <div class="border rounded-xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-4 text-left font-medium hover:bg-gray-50 transition"><span data-i18n="faq5_q"></span><svg class="w-5 h-5 text-gray-400 shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button><div class="hidden px-4 pb-4 text-sm text-gray-600" data-i18n="faq5_a"></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== PAGE: CONTACT ========== -->
+<div id="page-contact" class="page">
+<div class="max-w-3xl mx-auto px-4 py-12">
+  <button onclick="goBack()" class="glass-card rounded-xl px-4 py-2 flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-700 mb-6 transition"><svg class="w-4 h-4 rtl-flip" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span data-i18n="back"></span></button>
+  <div class="glass-card rounded-3xl p-8 md:p-12">
+    <div class="flex items-center gap-3 mb-8"><div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div><h1 class="text-3xl font-bold" data-i18n="contact_title"></h1></div>
+    <p class="text-gray-500 mb-8" data-i18n="contact_intro"></p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="space-y-4">
+        <div class="flex items-center gap-3 p-4 glass-card rounded-2xl"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div><div><div class="text-xs text-gray-500" data-i18n="email"></div><div class="text-sm font-medium ltr-nums">info@synkem.com</div></div></div>
+        <div class="flex items-center gap-3 p-4 glass-card rounded-2xl"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg></div><div><div class="text-xs text-gray-500" data-i18n="phone"></div><div class="text-sm font-medium ltr-nums">+20 100 000 0000</div></div></div>
+        <div class="flex items-center gap-3 p-4 glass-card rounded-2xl"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div><div><div class="text-xs text-gray-500" data-i18n="contact_address">Address</div><div class="text-sm font-medium" data-i18n="contact_address"></div></div></div>
+      </div>
+      <div class="space-y-4">
+        <div><label class="block text-sm font-medium mb-1" data-i18n="full_name"></label><input type="text" class="w-full px-4 py-2.5 border bg-white/60 backdrop-blur rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"></div>
+        <div><label class="block text-sm font-medium mb-1" data-i18n="email"></label><input type="email" class="w-full px-4 py-2.5 border bg-white/60 backdrop-blur rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"></div>
+        <div><label class="block text-sm font-medium mb-1" data-i18n="contact_message"></label><textarea rows="4" class="w-full px-4 py-2.5 border bg-white/60 backdrop-blur rounded-2xl resize-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"></textarea></div>
+        <button class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white font-semibold rounded-2xl neon-glow-sm hover:scale-[1.02] transition" data-i18n="contact_send"></button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== PAGE: ADMIN LOGIN ========== -->
+<div id="page-admin-login" class="page">
+<div class="min-h-[80vh] flex items-center justify-center px-4">
+  <div class="w-full max-w-md glass-card rounded-3xl p-8 shadow-2xl">
+    <div class="text-center mb-6">
+      <div class="flex flex-col items-center mb-2"><img src="logo-t.png" alt="SYNKEM" class="h-20 w-auto drop-shadow-md mb-1"><span class="text-2xl font-semibold tracking-[0.22em] uppercase text-slate-800" style="letter-spacing:0.22em">SYNKEM</span></div>
+      <h2 class="text-xl font-bold mt-3" data-i18n="admin_login_title"></h2>
+      <p class="text-sm text-gray-500 mt-1" data-i18n="admin_login_subtitle"></p>
+    </div>
+    <div class="space-y-4">
+      <div><label class="block text-sm font-medium mb-1" data-i18n="email"></label><input type="email" value="admin@synkem.com" class="w-full px-4 py-2.5 border rounded-xl"></div>
+      <div class="relative"><label class="block text-sm font-medium mb-1" data-i18n="admin_password"></label><input id="admin-pw" type="password" value="demo1234" class="w-full px-4 py-2.5 border rounded-xl pr-10"><button onclick="togglePw()" class="absolute right-3 top-9 text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></div>
+      <button onclick="adminLogin()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white font-semibold rounded-2xl neon-glow-sm hover:scale-[1.02] transition" data-i18n="admin_login_btn"></button>
+      <a href="#home" class="block text-center text-sm text-gray-500 hover:text-indigo-600 transition" data-i18n="admin_back_site"></a>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== PAGE: ADMIN ========== -->
+<div id="page-admin" class="page">
+<div class="flex min-h-[calc(100vh-64px)]">
+  <aside id="admin-sidebar" class="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 shrink-0">
+    <div class="p-6 border-b flex items-center gap-1.5"><img src="logo-t.png" alt="SYNKEM" class="h-9 w-auto shrink-0 drop-shadow-sm"><span class="text-base font-semibold tracking-[0.15em] uppercase text-slate-800" style="letter-spacing:0.15em">SYNKEM</span><span class="text-[10px] font-medium text-slate-400 tracking-wider uppercase ml-0.5">Admin</span></div>
+    <nav class="flex-1 p-3 space-y-1">
+      <button onclick="setAdminTab('dashboard')" data-tab="dashboard" class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg><span data-i18n="admin_dashboard"></span></button>
+      <button onclick="setAdminTab('jobs')" data-tab="jobs" class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span data-i18n="admin_jobs"></span></button>
+      <button onclick="setAdminTab('apps')" data-tab="apps" class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span data-i18n="admin_apps"></span></button>
+      <button onclick="setAdminTab('finance')" data-tab="finance" class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span data-i18n="admin_finance"></span></button>
+      <button onclick="setAdminTab('settings')" data-tab="settings" class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span data-i18n="admin_settings"></span></button>
+    </nav>
+    <div class="p-3 border-t">
+      <button onclick="adminLogout()" class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 text-red-500 hover:bg-red-50"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span data-i18n="admin_logout"></span></button>
+    </div>
+  </aside>
+  <!-- Mobile admin bottom bar -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-20 flex">
+    <button onclick="setAdminTab('dashboard')" data-tab="dashboard" class="flex-1 py-3 text-center text-xs font-medium text-gray-500 hover:text-indigo-700">Dashboard</button>
+    <button onclick="setAdminTab('jobs')" data-tab="jobs" class="flex-1 py-3 text-center text-xs font-medium text-gray-500 hover:text-indigo-700">Jobs</button>
+    <button onclick="setAdminTab('apps')" data-tab="apps" class="flex-1 py-3 text-center text-xs font-medium text-gray-500 hover:text-indigo-700">Apps</button>
+    <button onclick="setAdminTab('finance')" data-tab="finance" class="flex-1 py-3 text-center text-xs font-medium text-gray-500 hover:text-indigo-700">Finance</button>
+    <button onclick="setAdminTab('settings')" data-tab="settings" class="flex-1 py-3 text-center text-xs font-medium text-gray-500 hover:text-indigo-700">Settings</button>
+  </div>
+  <main class="flex-1 p-4 md:p-6 lg:p-8 pb-20 lg:pb-8 overflow-auto">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-lg font-bold text-gray-800">Admin Panel</h1>
+        <p class="text-xs text-gray-400">Welcome back, Admin</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="admin-notif-bell" onclick="toggleAdminNotifications()" class="relative p-2 rounded-xl hover:bg-gray-100 transition">
+          <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+        </button>
+        <div class="w-9 h-9 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">A</div>
+      </div>
+    </div>
+    <div id="admin-notif-dropdown" class="hidden absolute right-6 top-20 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+      <div class="p-4 border-b bg-gray-50"><h3 class="font-semibold text-sm">Notifications</h3></div>
+      <div class="max-h-64 overflow-y-auto">
+        <div class="p-3 hover:bg-gray-50 border-b flex gap-3 items-start"><div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div><div><p class="text-sm">New application received for <strong>Software Engineer</strong></p><p class="text-xs text-gray-400 mt-1">2 minutes ago</p></div></div>
+        <div class="p-3 hover:bg-gray-50 border-b flex gap-3 items-start"><div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 1v8m0 0v1"/></svg></div><div><p class="text-sm">Payment confirmed - <strong>750 EGP</strong></p><p class="text-xs text-gray-400 mt-1">15 minutes ago</p></div></div>
+        <div class="p-3 hover:bg-gray-50 flex gap-3 items-start"><div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg></div><div><p class="text-sm">3 applications pending review</p><p class="text-xs text-gray-400 mt-1">1 hour ago</p></div></div>
+      </div>
+    </div>
+    <div id="admin-content"></div>
+  </main>
+</div>
+</div>
+
+<!-- Job Modal -->
+<div id="job-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold" data-i18n="admin_new_job"></h3>
+      <button onclick="closeJobModal()" class="p-2 hover:bg-gray-100 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium mb-1">Title (EN)</label><input id="modal-title-en" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+        <div><label class="block text-xs font-medium mb-1">Title (AR)</label><input id="modal-title-ar" class="w-full px-3 py-2 border rounded-lg text-sm" dir="rtl"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium mb-1">Category</label><select id="modal-cat" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="tech">Technology</option><option value="eng">Engineering</option><option value="med">Medical</option><option value="sales">Sales</option><option value="admin">Management</option><option value="design">Design</option><option value="finance">Finance</option><option value="edu">Education</option></select></div>
+        <div><label class="block text-xs font-medium mb-1">City</label><select id="modal-city" class="w-full px-3 py-2 border rounded-lg text-sm"><option>Cairo</option><option>Alexandria</option><option>Giza</option><option>Hurghada</option><option>6th of October</option></select></div>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div><label class="block text-xs font-medium mb-1">Type</label><select id="modal-type" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="full">Full-time</option><option value="part">Part-time</option><option value="remote">Remote</option><option value="intern">Internship</option></select></div>
+        <div><label class="block text-xs font-medium mb-1">Salary Min</label><input id="modal-sal-min" type="number" class="w-full px-3 py-2 border rounded-lg text-sm ltr-nums"></div>
+        <div><label class="block text-xs font-medium mb-1">Salary Max</label><input id="modal-sal-max" type="number" class="w-full px-3 py-2 border rounded-lg text-sm ltr-nums"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium mb-1">CV Price (EGP)</label><input id="modal-price" type="number" class="w-full px-3 py-2 border rounded-lg text-sm ltr-nums"></div>
+        <div class="flex items-end"><label class="flex items-center gap-2 text-sm"><input type="checkbox" id="modal-negotiable" class="w-4 h-4 rounded">Negotiable</label></div>
+      </div>
+      <div><label class="block text-xs font-medium mb-1">Description</label><textarea id="modal-desc" rows="3" class="w-full px-3 py-2 border rounded-lg text-sm resize-none"></textarea></div>
+      <div><label class="block text-xs font-medium mb-1">Requirements (one per line)</label><textarea id="modal-reqs" rows="3" class="w-full px-3 py-2 border rounded-lg text-sm resize-none"></textarea></div>
+      <div><label class="block text-xs font-medium mb-1">Conditions (one per line)</label><textarea id="modal-conds" rows="3" class="w-full px-3 py-2 border rounded-lg text-sm resize-none"></textarea></div>
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeJobModal()" class="flex-1 py-2.5 border rounded-xl font-medium text-sm hover:bg-gray-50 transition" data-i18n="admin_cancel"></button>
+        <button onclick="saveJobModal()" class="flex-1 py-2.5 bg-primary-700 text-white rounded-xl font-medium text-sm hover:bg-primary-600 transition" data-i18n="admin_save"></button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ===================== MOCK DATA =====================
+const JOBS=[
+{id:1,title:"Software Engineer",titleAr:"مهندس برمجيات",titleRu:"Инженер-программист",company:"Vodafone Egypt",companyAr:"فودافون مصر",companyRu:"Vodafone Египет",initial:"V",color:"bg-red-100 text-red-700",city:"Cairo",cityAr:"القاهرة",cityRu:"Каир",type:"full",salary:18000,fee:100,views:342,apps:28,posted:"2026-02-20",category:"tech",
+desc:"We are looking for a talented Software Engineer to join our development team. You will work on building scalable web applications using modern technologies.",
+descAr:"نبحث عن مهندس برمجيات موهوب للانضمام إلى فريق التطوير لدينا.",
+descRu:"Мы ищем талантливого инженера-программиста для нашей команды.",
+reqs:["3+ years experience in software development","Proficiency in Python, JavaScript, or Java","Experience with REST APIs and microservices","BS in Computer Science or related field","Strong problem-solving skills"],
+reqsAr:["خبرة 3 سنوات على الأقل في تطوير البرمجيات","إتقان Python أو JavaScript أو Java","خبرة في REST APIs","بكالوريوس في علوم الحاسب","مهارات قوية في حل المشكلات"],
+reqsRu:["Опыт от 3 лет в разработке ПО","Владение Python, JavaScript или Java","Опыт работы с REST API","Высшее образование в области ИТ","Сильные навыки решения задач"],
+conds:["Full-time position, Sunday to Thursday","Competitive salary with annual bonuses","Health insurance and social insurance","Hybrid work model","Professional development budget"],
+condsAr:["دوام كامل، من الأحد إلى الخميس","راتب تنافسي مع مكافآت سنوية","تأمين صحي واجتماعي","نظام عمل هجين","ميزانية للتطوير المهني"],
+condsRu:["Полная занятость, воскресенье-четверг","Конкурентная зарплата с бонусами","Медицинское и социальное страхование","Гибридный формат","Бюджет на профессиональное развитие"]},
+{id:2,title:"Marketing Manager",titleAr:"مدير تسويق",titleRu:"Менеджер по маркетингу",company:"Orange Egypt",companyAr:"أورنج مصر",companyRu:"Orange Египет",initial:"O",color:"bg-orange-100 text-orange-700",city:"Alexandria",cityAr:"الإسكندرية",cityRu:"Александрия",type:"full",salary:22000,fee:80,views:215,apps:19,posted:"2026-02-18",category:"sales",
+desc:"Orange Egypt is seeking a dynamic Marketing Manager to lead brand campaigns and digital marketing initiatives.",
+descAr:"تبحث أورنج مصر عن مدير تسويق ديناميكي لقيادة حملات العلامة التجارية.",
+descRu:"Orange Египет ищет менеджера по маркетингу.",
+reqs:["5+ years in marketing management","Telecommunications experience preferred","Strong analytical mindset","Fluent in Arabic and English","MBA is a plus"],
+reqsAr:["خبرة 5 سنوات في إدارة التسويق","يفضل خبرة في الاتصالات","تفكير تحليلي قوي","إتقان العربية والإنجليزية","MBA ميزة إضافية"],
+reqsRu:["Опыт от 5 лет в маркетинге","Опыт в телекоммуникациях","Аналитическое мышление","Свободный арабский и английский","MBA — преимущество"],
+conds:["Full-time, competitive package","Company car allowance","Annual performance bonus","Health and life insurance","Flexible working hours"],
+condsAr:["دوام كامل، حزمة تنافسية","بدل سيارة","مكافأة أداء سنوية","تأمين صحي وعلى الحياة","ساعات عمل مرنة"],
+condsRu:["Полная занятость","Компенсация автомобиля","Годовой бонус","Медицинское и страхование жизни","Гибкий график"]},
+{id:3,title:"Accountant",titleAr:"محاسب",titleRu:"Бухгалтер",company:"CIB Bank",companyAr:"البنك التجاري الدولي",companyRu:"CIB Банк",initial:"C",color:"bg-blue-100 text-blue-700",city:"Giza",cityAr:"الجيزة",cityRu:"Гиза",type:"full",salary:12000,fee:50,views:189,apps:34,posted:"2026-02-22",category:"finance",
+desc:"CIB Bank is hiring an experienced Accountant to manage financial records and prepare reports.",
+descAr:"يعلن البنك التجاري الدولي عن حاجته لمحاسب خبير.",descRu:"CIB Банк ищет опытного бухгалтера.",
+reqs:["Bachelor in Accounting","2+ years experience","Knowledge of Egyptian tax laws","Proficient in Excel","CPA is a plus"],
+reqsAr:["بكالوريوس في المحاسبة","خبرة سنتين","معرفة بالقوانين الضريبية","إتقان Excel","CPA ميزة إضافية"],
+reqsRu:["Высшее образование","Опыт от 2 лет","Знание налогового права","Владение Excel","CPA — плюс"],
+conds:["Full-time, banking hours","Competitive salary","Health insurance","Annual bonus","Career growth"],
+condsAr:["دوام كامل","راتب تنافسي","تأمين صحي","مكافأة سنوية","فرص للنمو"],
+condsRu:["Полная занятость","Конкурентная зарплата","Медстрахование","Годовой бонус","Карьерный рост"]},
+{id:4,title:"Civil Engineer",titleAr:"مهندس مدني",titleRu:"Инженер-строитель",company:"Orascom Construction",companyAr:"أوراسكوم للإنشاءات",companyRu:"Orascom Construction",initial:"OC",color:"bg-amber-100 text-amber-700",city:"Cairo",cityAr:"القاهرة",cityRu:"Каир",type:"full",salary:15000,fee:75,views:156,apps:22,posted:"2026-02-15",category:"eng",
+desc:"Orascom is looking for a Civil Engineer for major infrastructure projects across Egypt.",descAr:"تبحث أوراسكوم عن مهندس مدني للعمل في مشاريع البنية التحتية.",descRu:"Orascom ищет инженера-строителя.",
+reqs:["BS in Civil Engineering","3+ years field experience","AutoCAD proficiency","Knowledge of Egyptian building codes","Engineering syndicate membership"],
+reqsAr:["بكالوريوس هندسة مدنية","خبرة 3 سنوات","إتقان AutoCAD","معرفة بأكواد البناء","عضوية نقابة المهندسين"],
+reqsRu:["Высшее образование","Опыт от 3 лет","AutoCAD","Знание норм","Членство в синдикате"],
+conds:["Full-time with site visits","Transportation provided","Site allowance","Health insurance","Overtime pay"],
+condsAr:["دوام كامل مع زيارات ميدانية","توفير مواصلات","بدل موقع","تأمين صحي","تعويض ساعات إضافية"],
+condsRu:["Полная занятость","Транспорт","Надбавка","Страхование","Оплата переработок"]},
+{id:5,title:"Graphic Designer",titleAr:"مصمم جرافيك",titleRu:"Графический дизайнер",company:"El Gouna Development",companyAr:"الجونة للتنمية",companyRu:"El Gouna Development",initial:"EG",color:"bg-emerald-100 text-emerald-700",city:"Hurghada",cityAr:"الغردقة",cityRu:"Хургада",type:"remote",salary:10000,fee:60,views:278,apps:45,posted:"2026-02-24",category:"design",
+desc:"Join El Gouna Development creating stunning visual content for our luxury resort brand.",descAr:"انضم إلى الجونة لتصميم محتوى بصري مذهل.",descRu:"Присоединяйтесь к El Gouna Development.",
+reqs:["2+ years design experience","Adobe Creative Suite","Strong portfolio","Branding understanding","Photography is a plus"],
+reqsAr:["خبرة سنتين","Adobe Creative Suite","معرض أعمال قوي","فهم العلامات التجارية","تصوير ميزة إضافية"],
+reqsRu:["Опыт от 2 лет","Adobe Creative Suite","Портфолио","Брендинг","Фотография — плюс"],
+conds:["Remote position","Flexible schedule","Creative freedom","Modern tools","Travel allowance"],
+condsAr:["عمل عن بعد","جدول مرن","حرية إبداعية","أدوات حديثة","بدل سفر"],
+condsRu:["Удалённая работа","Гибкий график","Творчество","Современные инструменты","Компенсация поездок"]},
+{id:6,title:"Sales Representative",titleAr:"مندوب مبيعات",titleRu:"Торговый представитель",company:"Telecom Egypt",companyAr:"المصرية للاتصالات",companyRu:"Telecom Egypt",initial:"TE",color:"bg-indigo-100 text-indigo-700",city:"Alexandria",cityAr:"الإسكندرية",cityRu:"Александрия",type:"full",salary:8000,fee:50,views:312,apps:52,posted:"2026-02-25",category:"sales",
+desc:"Telecom Egypt is hiring Sales Representatives for our Alexandria branch.",descAr:"تعلن المصرية للاتصالات عن حاجتها لمندوبي مبيعات.",descRu:"Telecom Egypt набирает торговых представителей.",
+reqs:["1+ year sales experience","Excellent communication","Own vehicle preferred","Fluent Arabic","Results-driven"],
+reqsAr:["خبرة سنة","مهارات تواصل","يفضل سيارة","إتقان العربية","موجه للنتائج"],
+reqsRu:["Опыт от 1 года","Коммуникабельность","Личный авто","Арабский","Ориентация на результат"],
+conds:["Full-time, flexible","Base + commission","Company phone","Monthly bonuses","Transportation allowance"],
+condsAr:["دوام مرن","راتب + عمولة","هاتف من الشركة","مكافآت شهرية","بدل مواصلات"],
+condsRu:["Гибкий график","Оклад + комиссия","Корп. телефон","Бонусы","Компенсация транспорта"]},
+{id:7,title:"HR Specialist",titleAr:"أخصائي موارد بشرية",titleRu:"HR-специалист",company:"Juhayna Food",companyAr:"جهينة للصناعات الغذائية",companyRu:"Juhayna Food",initial:"JF",color:"bg-pink-100 text-pink-700",city:"6th of October",cityAr:"السادس من أكتوبر",cityRu:"6 Октября",type:"full",salary:11000,fee:60,views:167,apps:31,posted:"2026-02-21",category:"admin",
+desc:"Juhayna Food is looking for an HR Specialist to manage recruitment and employee relations.",descAr:"تبحث جهينة عن أخصائي موارد بشرية.",descRu:"Juhayna Food ищет HR-специалиста.",
+reqs:["Bachelor in HR","2+ years experience","Egyptian labor law","HR software","Interpersonal skills"],
+reqsAr:["بكالوريوس موارد بشرية","خبرة سنتين","قانون العمل","برامج HR","مهارات تواصل"],
+reqsRu:["Высшее образование","Опыт от 2 лет","Трудовое право","HR-системы","Коммуникабельность"],
+conds:["Full-time","Competitive salary","Health insurance","Free products","Training"],
+condsAr:["دوام كامل","راتب تنافسي","تأمين صحي","منتجات مجانية","برامج تدريبية"],
+condsRu:["Полная занятость","Зарплата","Страхование","Продукция","Обучение"]},
+{id:8,title:"Customer Support Lead",titleAr:"رئيس دعم العملاء",titleRu:"Руководитель поддержки",company:"Amazon Egypt",companyAr:"أمازون مصر",companyRu:"Amazon Египет",initial:"A",color:"bg-yellow-100 text-yellow-700",city:"Cairo",cityAr:"القاهرة",cityRu:"Каир",type:"remote",salary:14000,fee:70,views:423,apps:67,posted:"2026-02-23",category:"admin",
+desc:"Amazon Egypt is seeking a Customer Support Lead to manage our support team.",descAr:"تبحث أمازون مصر عن رئيس لفريق دعم العملاء.",descRu:"Amazon Египет ищет руководителя поддержки.",
+reqs:["3+ years in support","Team leadership","Arabic and English","CRM systems","Analytical skills"],
+reqsAr:["خبرة 3 سنوات","قيادة فرق","عربي وإنجليزي","CRM","مهارات تحليلية"],
+reqsRu:["Опыт от 3 лет","Управление командой","Языки","CRM","Аналитика"],
+conds:["Remote","Shift-based","Health insurance","Amazon discounts","Performance bonuses"],
+condsAr:["عن بعد","ورديات","تأمين صحي","خصومات أمازون","مكافآت أداء"],
+condsRu:["Удалённо","Смены","Страхование","Скидки Amazon","Бонусы"]},
+{id:9,title:"Medical Doctor",titleAr:"طبيب",titleRu:"Врач",company:"As-Salam Hospital",companyAr:"مستشفى السلام",companyRu:"Госпиталь Ас-Салам",initial:"AS",color:"bg-rose-100 text-rose-700",city:"Alexandria",cityAr:"الإسكندرية",cityRu:"Александрия",type:"full",salary:35000,fee:150,views:198,apps:15,posted:"2026-02-19",category:"med",
+desc:"As-Salam Hospital is seeking a qualified Medical Doctor for internal medicine.",descAr:"يعلن مستشفى السلام عن حاجته لطبيب مؤهل.",descRu:"Госпиталь Ас-Салам ищет врача.",
+reqs:["MD degree","Valid license","3+ years clinical","Internal medicine","Diagnostic skills"],
+reqsAr:["بكالوريوس طب","ترخيص ساري","خبرة 3 سنوات","تخصص باطنة","مهارات تشخيصية"],
+reqsRu:["Диплом врача","Лицензия","Опыт от 3 лет","Внутренняя медицина","Диагностика"],
+conds:["Full-time, shifts","High salary","Malpractice insurance","Continuing education","Modern equipment"],
+condsAr:["دوام كامل","راتب عالي","تأمين أخطاء طبية","دعم تعليم مستمر","معدات حديثة"],
+condsRu:["Сменный график","Высокая зарплата","Страхование","Повышение квалификации","Современное оборудование"]}
+];
+
+const ADMIN_APPS=[
+{name:"Ahmed Hassan",nameAr:"أحمد حسن",email:"ahmed@email.com",phone:"+20 112 345 6789",job:"Software Engineer",jobAr:"مهندس برمجيات",date:"2026-02-20",amount:100,status:"under_review",code:"SK-2026-A7X3K9",method:"Vodafone Cash"},
+{name:"Fatma Ali",nameAr:"فاطمة علي",email:"fatma@email.com",phone:"+20 101 234 5678",job:"Marketing Manager",jobAr:"مدير تسويق",date:"2026-02-18",amount:80,status:"accepted",code:"SK-2026-B4M2P8",method:"InstaPay"},
+{name:"Omar Khaled",nameAr:"عمر خالد",email:"omar@email.com",phone:"+20 115 678 9012",job:"Graphic Designer",jobAr:"مصمم جرافيك",date:"2026-02-24",amount:60,status:"pending_payment",code:"SK-2026-C9R1L5",method:"Orange Cash"},
+{name:"Sara Mohamed",nameAr:"سارة محمد",email:"sara@email.com",phone:"+20 102 345 6789",job:"Accountant",jobAr:"محاسب",date:"2026-02-22",amount:50,status:"rejected",code:"SK-2026-D2K7N3",method:"Etisalat Cash"},
+{name:"Mohamed Ibrahim",nameAr:"محمد إبراهيم",email:"m.ibrahim@email.com",phone:"+20 100 456 7890",job:"Civil Engineer",jobAr:"مهندس مدني",date:"2026-02-21",amount:75,status:"under_review",code:"SK-2026-E5T8Q2",method:"Vodafone Cash"},
+{name:"Nour Adel",nameAr:"نور عادل",email:"nour@email.com",phone:"+20 111 567 8901",job:"Sales Representative",jobAr:"مندوب مبيعات",date:"2026-02-25",amount:50,status:"paid",code:"SK-2026-F3W6J1",method:"InstaPay"},
+{name:"Youssef Tarek",nameAr:"يوسف طارق",email:"youssef@email.com",phone:"+20 106 789 0123",job:"Software Engineer",jobAr:"مهندس برمجيات",date:"2026-02-26",amount:100,status:"pending_payment",code:"SK-2026-G8V4R7",method:"Vodafone Cash"},
+{name:"Sarah Johnson",nameAr:"سارة جونسون",email:"sarah.j@email.com",phone:"+20 114 890 1234",job:"HR Specialist",jobAr:"أخصائي موارد بشرية",date:"2026-02-23",amount:60,status:"paid",code:"SK-2026-H1K5M9",method:"Orange Cash"},
+{name:"Alexei Kozlov",nameAr:"أليكسي كوزلوف",email:"alexei@email.com",phone:"+20 109 012 3456",job:"Customer Support Lead",jobAr:"رئيس دعم العملاء",date:"2026-02-27",amount:70,status:"accepted",code:"SK-2026-J6N2P4",method:"InstaPay"},
+{name:"Layla Mahmoud",nameAr:"ليلى محمود",email:"layla@email.com",phone:"+20 103 123 4567",job:"Medical Doctor",jobAr:"طبيب",date:"2026-02-19",amount:150,status:"under_review",code:"SK-2026-K4R8W1",method:"Etisalat Cash"}
+];
+
+const MOCK_TRACKING={
+"SK-2026-A7X3K9":{job:"Software Engineer",jobAr:"مهندس برمجيات",jobRu:"Инженер-программист",date:"2026-02-20",payment:"paid",status:"under_review",comment:"Your CV is being reviewed by the hiring manager.",commentAr:"سيرتك الذاتية قيد المراجعة.",commentRu:"Ваше CV рассматривается."},
+"SK-2026-B4M2P8":{job:"Marketing Manager",jobAr:"مدير تسويق",jobRu:"Менеджер по маркетингу",date:"2026-02-18",payment:"paid",status:"accepted",comment:"Congratulations! You have been shortlisted for an interview.",commentAr:"تهانينا! تم ترشيحك للمقابلة.",commentRu:"Поздравляем! Вы отобраны для собеседования."},
+"SK-2026-C9R1L5":{job:"Graphic Designer",jobAr:"مصمم جرافيك",jobRu:"Графический дизайнер",date:"2026-02-24",payment:"pending_payment",status:"pending_payment",comment:"Awaiting payment confirmation.",commentAr:"بانتظار تأكيد الدفع.",commentRu:"Ожидается подтверждение оплаты."},
+"SK-2026-D2K7N3":{job:"Accountant",jobAr:"محاسب",jobRu:"Бухгалтер",date:"2026-02-22",payment:"paid",status:"rejected",comment:"Thank you for your interest. The position has been filled.",commentAr:"شكراً لاهتمامك. تم شغل الوظيفة.",commentRu:"Спасибо за интерес. Вакансия закрыта."},
+"SK-2026-J6N2P4":{job:"Customer Support Lead",jobAr:"رئيس دعم العملاء",jobRu:"Руководитель поддержки",date:"2026-02-27",payment:"paid",status:"accepted",comment:"Welcome aboard! Check your email for onboarding details.",commentAr:"مرحباً بك! راجع بريدك.",commentRu:"Добро пожаловать! Проверьте email."}
+};
+
+const FINANCE_DATA=[
+{code:"SK-2026-A7X3K9",name:"Ahmed Hassan",amount:100,usdt:2.00,method:"Vodafone Cash",status:"completed",txId:"TF-8291A",date:"2026-02-20"},
+{code:"SK-2026-B4M2P8",name:"Fatma Ali",amount:80,usdt:1.60,method:"InstaPay",status:"completed",txId:"TF-7382B",date:"2026-02-18"},
+{code:"SK-2026-C9R1L5",name:"Omar Khaled",amount:60,usdt:0,method:"Orange Cash",status:"pending",txId:"-",date:"2026-02-24"},
+{code:"SK-2026-D2K7N3",name:"Sara Mohamed",amount:50,usdt:1.00,method:"Etisalat Cash",status:"completed",txId:"TF-5194D",date:"2026-02-22"},
+{code:"SK-2026-E5T8Q2",name:"Mohamed Ibrahim",amount:75,usdt:1.50,method:"Vodafone Cash",status:"completed",txId:"TF-6205E",date:"2026-02-21"},
+{code:"SK-2026-F3W6J1",name:"Nour Adel",amount:50,usdt:1.00,method:"InstaPay",status:"completed",txId:"TF-4316F",date:"2026-02-25"},
+{code:"SK-2026-G8V4R7",name:"Youssef Tarek",amount:100,usdt:0,method:"Vodafone Cash",status:"pending",txId:"-",date:"2026-02-26"},
+{code:"SK-2026-H1K5M9",name:"Sarah Johnson",amount:60,usdt:1.20,method:"Orange Cash",status:"completed",txId:"TF-3427G",date:"2026-02-23"},
+{code:"SK-2026-J6N2P4",name:"Alexei Kozlov",amount:70,usdt:1.40,method:"InstaPay",status:"completed",txId:"TF-2538H",date:"2026-02-27"},
+{code:"SK-2026-K4R8W1",name:"Layla Mahmoud",amount:150,usdt:0,method:"Etisalat Cash",status:"pending",txId:"-",date:"2026-02-19"}
+];
+
+const CATEGORIES=[
+{key:"tech",icon:'<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',bg:"bg-blue-50 text-blue-600"},
+{key:"eng",icon:'<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>',bg:"bg-amber-50 text-amber-600"},
+{key:"med",icon:'<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>',bg:"bg-rose-50 text-rose-600"},
+{key:"edu",icon:'<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>',bg:"bg-purple-50 text-purple-600"},
+{key:"sales",icon:'<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>',bg:"bg-green-50 text-green-600"},
+{key:"admin",icon:'<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',bg:"bg-indigo-50 text-indigo-600"},
+{key:"design",icon:'<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>',bg:"bg-pink-50 text-pink-600"},
+{key:"finance",icon:'<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',bg:"bg-teal-50 text-teal-600"}
+];
+
+// ===================== STATE =====================
+const state = {
+  lang: localStorage.getItem('sk-lang') || 'en',
+  locale: {},
+  currentJob: null,
+  currentFee: 0,
+  adminLoggedIn: false,
+  adminTab: 'dashboard',
+  filterCat: '',
+  filterCity: '',
+  filterType: '',
+  searchQuery: '',
+  jobsShown: 6,
+  expandedApp: null,
+  initialLoad: true,
+  initialCatLoad: true
+};
+
+// ===================== i18n =====================
+async function loadLocale(lang) {
+  try {
+    const r = await fetch(`/locales/${lang}.json`);
+    state.locale = await r.json();
+  } catch(e) {
+    console.warn('Locale load failed, using fallback');
+    state.locale = {};
+  }
+}
+
+function t(key) {
+  return state.locale[key] || key;
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (state.locale[k]) el.textContent = state.locale[k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.getAttribute('data-i18n-placeholder');
+    if (state.locale[k]) el.placeholder = state.locale[k];
+  });
+  // Update lang buttons
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('bg-white', b.dataset.lang === state.lang);
+    b.classList.toggle('shadow-sm', b.dataset.lang === state.lang);
+    b.classList.toggle('text-indigo-700', b.dataset.lang === state.lang);
+  });
+}
+
+async function setLang(lang) {
+  state.lang = lang;
+  localStorage.setItem('sk-lang', lang);
+  const isRtl = lang === 'ar';
+  document.documentElement.lang = lang;
+  document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+  await loadLocale(lang);
+  applyI18n();
+  renderFilters();
+  renderJobs();
+  renderCategories();
+  // Re-render current page content if needed
+  const hash = location.hash || '#home';
+  if (hash.startsWith('#job?')) renderJobDetail();
+  if (hash === '#track') { /* re-render if result shown */ }
+  if (hash === '#admin') renderAdminContent();
+}
+
+// ===================== ROUTING =====================
+function navigate() {
+  const hash = location.hash || '#home';
+  const page = hash.split('?')[0].replace('#','');
+
+  // Admin gate
+  if (page === 'admin' && !state.adminLoggedIn) {
+    showPage('admin-login');
+    return;
+  }
+
+  // Hide public header on admin pages
+  const pubHeader = document.getElementById('public-header');
+  if (page === 'admin') {
+    pubHeader.classList.add('hidden');
+  } else {
+    pubHeader.classList.remove('hidden');
+  }
+
+  showPage(page);
+
+  // Page-specific init
+  if (page === 'home') {
+    initHome();
+  } else if (page === 'job') {
+    const params = new URLSearchParams(hash.split('?')[1] || '');
+    state.currentJob = parseInt(params.get('id'));
+    renderJobDetail();
+  } else if (page === 'apply') {
+    renderApplyPage();
+  } else if (page === 'payment') {
+    renderPaymentPage();
+  } else if (page === 'success') {
+    renderSuccessPage();
+  } else if (page === 'admin') {
+    renderAdminContent();
+  }
+
+  window.scrollTo(0, 0);
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-' + name);
+  if (el) {
+    el.classList.add('active');
+  }
+}
+
+function goBack() {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    location.hash = '#home';
+  }
+}
+
+// ===================== TOAST =====================
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  const bg = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600';
+  toast.className = `toast ${bg} text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ===================== MOBILE MENU =====================
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+  document.getElementById('mobile-overlay').classList.toggle('open');
+}
+
+// ===================== FAQ ACCORDION =====================
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const icon = btn.querySelector('svg');
+  const isOpen = !answer.classList.contains('hidden');
+  // Close all
+  document.querySelectorAll('#faq-list > div').forEach(item => {
+    item.querySelector('div:last-child').classList.add('hidden');
+    item.querySelector('svg').style.transform = '';
+  });
+  if (!isOpen) {
+    answer.classList.remove('hidden');
+    icon.style.transform = 'rotate(180deg)';
+  }
+}
+
+// ===================== DARK THEME =====================
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const isDark = document.documentElement.classList.contains('dark');
+  document.querySelectorAll('.theme-icon-sun').forEach(el => el.style.display = isDark ? 'none' : 'block');
+  document.querySelectorAll('.theme-icon-moon').forEach(el => el.style.display = isDark ? 'block' : 'none');
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  }
+  updateThemeIcon();
+}
+
+// ===================== LOCALIZED GETTERS =====================
+function getJobField(job, field) {
+  if (state.lang === 'ar' && job[field + 'Ar']) return job[field + 'Ar'];
+  if (state.lang === 'ru' && job[field + 'Ru']) return job[field + 'Ru'];
+  return job[field];
+}
+
+function getTypeBadge(type) {
+  const colors = {full:'bg-blue-100 text-blue-700',part:'bg-purple-100 text-purple-700',remote:'bg-green-100 text-green-700',intern:'bg-orange-100 text-orange-700'};
+  return `<span class="badge ${colors[type] || 'bg-gray-100 text-gray-700'}">${t('type_'+type)}</span>`;
+}
+
+function getStatusBadge(status) {
+  const colors = {pending_payment:'bg-yellow-100 text-yellow-700',paid:'bg-blue-100 text-blue-700',under_review:'bg-purple-100 text-purple-700',accepted:'bg-green-100 text-green-700',rejected:'bg-red-100 text-red-700',completed:'bg-green-100 text-green-700',pending:'bg-yellow-100 text-yellow-700'};
+  const fallback = {completed:'Completed',pending:'Pending'};
+  const label = state.locale['status_'+status] || fallback[status] || status;
+  return `<span class="badge ${colors[status] || 'bg-gray-100 text-gray-700'}">${label}</span>`;
+}
+
+function getMethodBadge(method) {
+  const colors = {'Vodafone Cash':'bg-red-100 text-red-700','InstaPay':'bg-blue-100 text-blue-700','Orange Cash':'bg-orange-100 text-orange-700','Etisalat Cash':'bg-green-100 text-green-700'};
+  return `<span class="badge ${colors[method] || 'bg-gray-100 text-gray-700'}">${method}</span>`;
+}
+
+// ===================== HOME PAGE =====================
+function initHome() {
+  renderFilters();
+  renderJobs();
+  renderCategories();
+  initCarousel();
+  initCounters();
+  initScrollReveal();
+}
+
+function renderFilters() {
+  // Category select
+  const catSel = document.getElementById('filter-cat');
+  if (!catSel) return;
+  const cats = [...new Set(JOBS.map(j => j.category))];
+  catSel.innerHTML = `<option value="">${t('all_categories')}</option>` +
+    cats.map(c => `<option value="${c}" ${state.filterCat===c?'selected':''}>${t('cat_'+c) || t('cat_admin_cat')}</option>`).join('');
+
+  // City select
+  const citySel = document.getElementById('filter-city');
+  const cities = [...new Set(JOBS.map(j => j.city))];
+  citySel.innerHTML = `<option value="">${t('all_cities')}</option>` +
+    cities.map(c => `<option value="${c}" ${state.filterCity===c?'selected':''}>${state.lang==='ar'? JOBS.find(j=>j.city===c)?.cityAr : state.lang==='ru'? JOBS.find(j=>j.city===c)?.cityRu : c}</option>`).join('');
+
+  // Type chips
+  const typeDiv = document.getElementById('filter-type-chips');
+  const types = ['','full','part','remote','intern'];
+  typeDiv.innerHTML = types.map(t2 => {
+    const active = state.filterType === t2;
+    const label = t2 === '' ? t('filter_all') : t('type_'+t2);
+    return `<button onclick="state.filterType='${t2}';applyFilters()" class="px-3 py-1.5 rounded-lg text-xs font-medium transition ${active ? 'bg-primary-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">${label}</button>`;
+  }).join('');
+}
+
+function applyFilters() {
+  state.filterCat = document.getElementById('filter-cat').value;
+  state.filterCity = document.getElementById('filter-city').value;
+  state.jobsShown = 6;
+  renderJobs();
+  renderFilters();
+}
+
+function getFilteredJobs() {
+  return JOBS.filter(j => {
+    if (state.filterCat && j.category !== state.filterCat) return false;
+    if (state.filterCity && j.city !== state.filterCity) return false;
+    if (state.filterType && j.type !== state.filterType) return false;
+    if (state.searchQuery) {
+      const q = state.searchQuery.toLowerCase();
+      const title = (getJobField(j,'title') || '').toLowerCase();
+      const company = (getJobField(j,'company') || '').toLowerCase();
+      if (!title.includes(q) && !company.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderJobs() {
+  const grid = document.getElementById('job-grid');
+  if (!grid) return;
+
+  // Skeleton loading on initial load
+  if (state.initialLoad) {
+    grid.innerHTML = Array.from({length:6}, () => `
+      <div class="glass-card rounded-3xl p-6 relative overflow-hidden">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="skeleton-block w-12 h-12 rounded-2xl shrink-0"></div>
+          <div class="flex-1 min-w-0">
+            <div class="skeleton-block h-5 w-3/4 mb-2"></div>
+            <div class="skeleton-block h-4 w-1/2"></div>
+          </div>
+        </div>
+        <div class="flex gap-2 mb-4">
+          <div class="skeleton-block h-5 w-20"></div>
+          <div class="skeleton-block h-5 w-16"></div>
+        </div>
+        <div class="pt-4 border-t border-gray-100/60 flex justify-between">
+          <div class="skeleton-block h-6 w-28"></div>
+          <div class="skeleton-block h-5 w-20"></div>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('filter-count').textContent = '';
+    setTimeout(() => { state.initialLoad = false; renderJobs(); }, 600);
+    return;
+  }
+
+  const filtered = getFilteredJobs();
+  const visible = filtered.slice(0, state.jobsShown);
+
+  // Update count
+  document.getElementById('filter-count').textContent = `${filtered.length} ${t('filter_results')}`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400"><svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>${t('no_jobs')}</p></div>`;
+  } else {
+    grid.innerHTML = visible.map((j, index) => `
+      <div class="glass-card stagger-in rounded-3xl p-6 card-hover cursor-pointer group relative overflow-hidden" style="animation-delay:${index * 0.06}s" onclick="location.hash='#job?id=${j.id}'">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="relative">
+          <div class="flex items-start gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl ${j.color} flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">${j.initial}</div>
+            <div class="min-w-0">
+              <h3 class="font-bold text-base truncate">${getJobField(j,'title')}</h3>
+              <p class="text-sm text-gray-500">${getJobField(j,'company')}</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 mb-4">
+            <span class="text-xs text-gray-500 flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${getJobField(j,'city')}</span>
+            ${getTypeBadge(j.type)}
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100/60">
+            <div><span class="text-lg font-bold bg-gradient-to-r from-indigo-600 to-indigo-500 bg-clip-text text-transparent ltr-nums">${j.salary.toLocaleString()}</span><span class="text-xs text-gray-400 ml-1">${t('egp')}${t('per_month')}</span></div>
+            <div class="text-xs text-gray-400">${t('cv_fee')}: <span class="font-semibold text-indigo-600 ltr-nums">${j.fee} ${t('egp')}</span></div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Show more button
+  const showMoreWrap = document.getElementById('show-more-wrap');
+  if (filtered.length > state.jobsShown) {
+    showMoreWrap.classList.remove('hidden');
+  } else {
+    showMoreWrap.classList.add('hidden');
+  }
+}
+
+function showMoreJobs() {
+  state.jobsShown += 6;
+  renderJobs();
+}
+
+function doHeroSearch() {
+  state.searchQuery = document.getElementById('hero-search').value;
+  state.jobsShown = 6;
+  renderJobs();
+  document.getElementById('job-grid').scrollIntoView({behavior:'smooth'});
+}
+
+function renderCategories() {
+  const grid = document.getElementById('cat-grid');
+  if (!grid) return;
+
+  // Skeleton loading on initial load
+  if (state.initialCatLoad) {
+    grid.innerHTML = Array.from({length:8}, () => `
+      <div class="glass-card rounded-3xl p-6 text-center relative overflow-hidden">
+        <div class="skeleton-block w-14 h-14 mx-auto mb-3 rounded-2xl"></div>
+        <div class="skeleton-block h-4 w-20 mx-auto"></div>
+      </div>
+    `).join('');
+    setTimeout(() => { state.initialCatLoad = false; renderCategories(); }, 600);
+    return;
+  }
+
+  grid.innerHTML = CATEGORIES.map((c, index) => {
+    const catKey = c.key === 'admin' ? 'cat_admin_cat' : 'cat_' + c.key;
+    return `<div class="glass-card stagger-in rounded-3xl p-6 text-center card-hover cursor-pointer group relative overflow-hidden" style="animation-delay:${index * 0.06}s" onclick="state.filterCat='${c.key}';document.getElementById('filter-cat').value='${c.key}';applyFilters();document.getElementById('job-grid').scrollIntoView({behavior:'smooth'})">
+      <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl ${c.bg} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">${c.icon}</div>
+        <p class="font-semibold text-sm">${t(catKey)}</p>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function initCounters() {
+  document.querySelectorAll('[data-counter]').forEach(el => {
+    const target = parseInt(el.dataset.counter);
+    let current = 0;
+    const step = Math.ceil(target / 60);
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) { current = target; clearInterval(timer); }
+      el.textContent = current.toLocaleString() + '+';
+    }, 30);
+  });
+}
+
+function initScrollReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+}
+
+// ===================== JOB DETAIL =====================
+function renderJobDetail() {
+  const job = JOBS.find(j => j.id === state.currentJob);
+  if (!job) return;
+  const container = document.getElementById('job-detail-content');
+  const title = getJobField(job,'title');
+  const company = getJobField(job,'company');
+  const city = getJobField(job,'city');
+  const desc = getJobField(job,'desc');
+  const reqs = state.lang==='ar'?job.reqsAr:state.lang==='ru'?job.reqsRu:job.reqs;
+  const conds = state.lang==='ar'?job.condsAr:state.lang==='ru'?job.condsRu:job.conds;
+
+  container.innerHTML = `
+    <div class="glass-card rounded-3xl overflow-hidden">
+      <div class="p-6 border-b">
+        <div class="flex items-start gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br ${job.color} flex items-center justify-center font-bold text-lg shrink-0">${job.initial}</div>
+          <div>
+            <h1 class="text-2xl font-bold mb-1">${title}</h1>
+            <p class="text-gray-500 mb-2">${company}</p>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-sm text-gray-500 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>${city}</span>
+              ${getTypeBadge(job.type)}
+              <span class="text-xs text-gray-400">${t('posted')}: <span class="ltr-nums">${job.posted}</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 divide-x border-b">
+        <div class="p-4 text-center">
+          <p class="text-sm text-gray-500">${t('salary')}</p>
+          <p class="text-xl font-bold text-indigo-700 ltr-nums">${job.salary.toLocaleString()} ${t('egp')}</p>
+        </div>
+        <div class="p-4 text-center">
+          <p class="text-sm text-gray-500">${t('cv_fee')}</p>
+          <p class="text-xl font-bold text-orange-600 ltr-nums">${job.fee} ${t('egp')}</p>
+        </div>
+      </div>
+      <div class="px-4 pt-2 flex gap-4 border-b text-sm">
+        <span class="text-gray-400 ltr-nums">${job.views} ${t('views')}</span>
+        <span class="text-gray-400 ltr-nums">${job.apps} ${t('applications')}</span>
+      </div>
+      <!-- Tabs -->
+      <div class="flex border-b">
+        <button onclick="showJobTab('desc')" id="jt-desc" class="flex-1 py-3 text-sm font-medium text-center tab-active">${t('job_desc')}</button>
+        <button onclick="showJobTab('reqs')" id="jt-reqs" class="flex-1 py-3 text-sm font-medium text-center text-gray-500">${t('requirements')}</button>
+        <button onclick="showJobTab('conds')" id="jt-conds" class="flex-1 py-3 text-sm font-medium text-center text-gray-500">${t('conditions')}</button>
+      </div>
+      <div class="p-6">
+        <div id="job-tab-desc">${desc}</div>
+        <div id="job-tab-reqs" class="hidden"><ul class="space-y-2">${reqs.map(r=>'<li class="flex items-start gap-2"><svg class="w-5 h-5 text-primary-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>'+r+'</span></li>').join('')}</ul></div>
+        <div id="job-tab-conds" class="hidden"><ul class="space-y-2">${conds.map(c=>'<li class="flex items-start gap-2"><svg class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>'+c+'</span></li>').join('')}</ul></div>
+      </div>
+      <div class="p-6 border-t">
+        <button onclick="location.hash='#apply?id=${job.id}'" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-primary-600 hover:from-indigo-500 hover:to-primary-500 text-white font-semibold rounded-2xl neon-glow-sm hover:scale-105 transition">${t('apply_now')}</button>
+      </div>
+    </div>`;
+}
+
+function showJobTab(tab) {
+  ['desc','reqs','conds'].forEach(t2 => {
+    document.getElementById('job-tab-'+t2).classList.toggle('hidden', t2!==tab);
+    document.getElementById('jt-'+t2).classList.toggle('tab-active', t2===tab);
+    document.getElementById('jt-'+t2).classList.toggle('text-gray-500', t2!==tab);
+  });
+}
+
+// ===================== APPLY PAGE =====================
+function renderApplyPage() {
+  const job = JOBS.find(j => j.id === state.currentJob);
+  if (!job) return;
+  document.getElementById('apply-job-ref').textContent = getJobField(job,'title') + ' - ' + getJobField(job,'company');
+  document.getElementById('apply-fee-badge').textContent = job.fee + ' ' + t('egp');
+  state.currentFee = job.fee;
+}
+
+function submitApplication() {
+  const name = document.getElementById('apply-name').value;
+  const email = document.getElementById('apply-email').value;
+  const terms = document.getElementById('apply-terms').checked;
+  if (!name || !email) { showToast('Please fill all required fields', 'error'); return; }
+  if (!terms) { showToast('Please accept terms', 'error'); return; }
+  location.hash = '#payment';
+}
+
+// ===================== PAYMENT PAGE =====================
+function renderPaymentPage() {
+  document.getElementById('payment-amount').textContent = state.currentFee + ' ' + t('egp');
+}
+
+function setPayTab(tab) {
+  document.getElementById('pay-auto-content').classList.toggle('hidden', tab !== 'auto');
+  document.getElementById('pay-manual-content').classList.toggle('hidden', tab !== 'manual');
+  document.getElementById('pay-tab-auto').classList.toggle('tab-active', tab === 'auto');
+  document.getElementById('pay-tab-auto').classList.toggle('text-gray-500', tab !== 'auto');
+  document.getElementById('pay-tab-manual').classList.toggle('tab-active', tab === 'manual');
+  document.getElementById('pay-tab-manual').classList.toggle('text-gray-500', tab !== 'manual');
+}
+
+function selectPayMethod(el, method) {
+  document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function processPayment() {
+  // Generate tracking code
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'SK-2026-';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  state.trackingCode = code;
+  showToast(t('toast_payment_ok'), 'success');
+  location.hash = '#success';
+}
+
+// ===================== SUCCESS PAGE =====================
+function renderSuccessPage() {
+  const code = state.trackingCode || 'SK-2026-DEMO01';
+  document.getElementById('success-code').textContent = code;
+  launchConfetti();
+}
+
+function copyTrackingCode() {
+  const code = document.getElementById('success-code').textContent;
+  navigator.clipboard.writeText(code).then(() => showToast(t('toast_copied'), 'success'));
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => showToast(t('toast_copied'), 'success'));
+}
+
+function launchConfetti() {
+  const container = document.getElementById('confetti-container');
+  container.innerHTML = '';
+  const colors = ['#0f766e','#14b8a6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#3b82f6'];
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = (2 + Math.random() * 3) + 's';
+    piece.style.animationDelay = Math.random() * 2 + 's';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.innerHTML = '', 6000);
+}
+
+// ===================== TRACKING PAGE =====================
+function doTrack() {
+  const code = document.getElementById('track-input').value.trim().toUpperCase();
+  const result = document.getElementById('track-result');
+  if (!code) return;
+  const data = MOCK_TRACKING[code];
+  if (!data) {
+    result.innerHTML = `<div class="text-center py-12"><svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p class="text-gray-500">${t('not_found')}</p></div>`;
+    return;
+  }
+  const jobName = state.lang==='ar'?data.jobAr:state.lang==='ru'?data.jobRu:data.job;
+  const comment = state.lang==='ar'?data.commentAr:state.lang==='ru'?data.commentRu:data.comment;
+  const steps = ['submitted','paid','reviewing','decision'];
+  const statusMap = {pending_payment:0,paid:1,under_review:2,accepted:3,rejected:3};
+  const currentStep = statusMap[data.status] || 0;
+
+  result.innerHTML = `
+    <!-- Timeline Stepper -->
+    <div class="glass-card rounded-3xl p-6 mb-6">
+      <div class="flex items-center justify-between mb-2">
+        ${steps.map((s,i) => `
+          <div class="flex flex-col items-center flex-1">
+            <div class="step-circle ${i < currentStep ? 'bg-green-500 text-white' : i === currentStep ? 'bg-primary-600 text-white ring-4 ring-primary-200' : 'bg-gray-200 text-gray-500'}">
+              ${i < currentStep ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' : (i+1)}
+            </div>
+            <span class="text-xs mt-2 font-medium ${i <= currentStep ? 'text-indigo-700' : 'text-gray-400'}">${t('step_'+s)}</span>
+          </div>
+          ${i < steps.length-1 ? '<div class="timeline-line flex-1 mx-1 mt-[-18px] rounded-full '+(i < currentStep ? 'bg-green-500' : 'bg-gray-200')+'"></div>' : ''}
+        `).join('')}
+      </div>
+    </div>
+    <!-- Result Card -->
+    <div class="glass-card rounded-3xl p-6">
+      <div class="space-y-4">
+        <div class="flex justify-between items-center"><span class="text-sm text-gray-500">${t('track_job')}</span><span class="font-semibold">${jobName}</span></div>
+        <div class="flex justify-between items-center"><span class="text-sm text-gray-500">${t('track_date')}</span><span class="font-medium ltr-nums">${data.date}</span></div>
+        <div class="flex justify-between items-center"><span class="text-sm text-gray-500">${t('track_payment')}</span>${getStatusBadge(data.payment)}</div>
+        <div class="flex justify-between items-center"><span class="text-sm text-gray-500">${t('track_application')}</span>${getStatusBadge(data.status)}</div>
+        <div class="pt-3 border-t"><p class="text-sm text-gray-500 mb-1">${t('track_comment')}</p><p class="text-sm bg-gray-50 rounded-xl p-3">${comment}</p></div>
+      </div>
+    </div>`;
+}
+
+// ===================== ADMIN =====================
+function togglePw() {
+  const pw = document.getElementById('admin-pw');
+  pw.type = pw.type === 'password' ? 'text' : 'password';
+}
+
+function adminLogin() {
+  state.adminLoggedIn = true;
+  location.hash = '#admin';
+}
+
+function adminLogout() {
+  state.adminLoggedIn = false;
+  location.hash = '#home';
+}
+
+function toggleAdminNotifications() {
+  const dd = document.getElementById('admin-notif-dropdown');
+  if (dd) dd.classList.toggle('hidden');
+}
+document.addEventListener('click', function(e) {
+  const dd = document.getElementById('admin-notif-dropdown');
+  const bell = document.getElementById('admin-notif-bell');
+  if (dd && bell && !bell.contains(e.target) && !dd.contains(e.target)) dd.classList.add('hidden');
+});
+
+function setAdminTab(tab) {
+  state.adminTab = tab;
+  // Update sidebar active
+  document.querySelectorAll('[data-tab]').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+    b.classList.toggle('text-indigo-700', b.dataset.tab === tab);
+  });
+  renderAdminContent();
+}
+
+function openJobModal() {
+  document.getElementById('job-modal').classList.add('open');
+}
+
+function closeJobModal() {
+  document.getElementById('job-modal').classList.remove('open');
+}
+
+function saveJobModal() {
+  showToast('Job saved!', 'success');
+  closeJobModal();
+}
+
+// ===================== ADMIN CONTENT RENDERER =====================
+function renderAdminContent() {
+  const container = document.getElementById('admin-content');
+  if (!container) return;
+  switch(state.adminTab) {
+    case 'dashboard': renderDashboard(container); break;
+    case 'jobs': renderAdminJobs(container); break;
+    case 'apps': renderAdminApps(container); break;
+    case 'finance': renderAdminFinance(container); break;
+    case 'settings': renderAdminSettings(container); break;
+  }
+  applyI18n();
+}
+
+function renderDashboard(c) {
+  const totalEgp = FINANCE_DATA.reduce((s,f)=>s+f.amount,0);
+  const pending = ADMIN_APPS.filter(a=>a.status==='pending_payment'||a.status==='under_review').length;
+  const barData = [12,18,8,24,15,20,28];
+  const barLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const maxBar = Math.max(...barData);
+
+  c.innerHTML = `
+    <h2 class="text-2xl font-bold mb-6" data-i18n="admin_dashboard"></h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="glass-card rounded-2xl p-5 card-hover"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div><div><p class="text-sm text-gray-500" data-i18n="admin_total_jobs"></p><p class="text-2xl font-bold ltr-nums">24</p></div></div></div>
+      <div class="glass-card rounded-2xl p-5 card-hover"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div><div><p class="text-sm text-gray-500" data-i18n="admin_total_apps"></p><p class="text-2xl font-bold ltr-nums">158</p></div></div></div>
+      <div class="glass-card rounded-2xl p-5 card-hover"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 1v8m0 0v1"/></svg></div><div><p class="text-sm text-gray-500" data-i18n="admin_revenue"></p><p class="text-2xl font-bold ltr-nums">${totalEgp.toLocaleString()} EGP</p></div></div></div>
+      <div class="glass-card rounded-2xl p-5 card-hover"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div><p class="text-sm text-gray-500" data-i18n="admin_pending"></p><p class="text-2xl font-bold ltr-nums">${pending}</p></div></div></div>
+    </div>
+    <!-- Chart -->
+    <div class="glass-card rounded-3xl p-6 mb-8">
+      <h3 class="font-semibold mb-4" data-i18n="admin_overview"></h3>
+      <div class="relative h-64"><canvas id="dashboard-chart"></canvas></div>
+    </div>
+    <!-- Recent Apps Table -->
+    <div class="glass-card rounded-3xl overflow-hidden">
+      <div class="p-4 border-b"><h3 class="font-semibold" data-i18n="admin_recent"></h3></div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="bg-gray-50 text-left"><th class="px-4 py-3 font-medium text-gray-500">Code</th><th class="px-4 py-3 font-medium text-gray-500" data-i18n="admin_applicant"></th><th class="px-4 py-3 font-medium text-gray-500" data-i18n="track_job"></th><th class="px-4 py-3 font-medium text-gray-500" data-i18n="admin_status"></th></tr></thead>
+        <tbody>${ADMIN_APPS.slice(0,5).map(a=>`<tr class="border-t hover:bg-gray-50"><td class="px-4 py-3 font-mono text-xs ltr-nums">${a.code}</td><td class="px-4 py-3">${state.lang==='ar'?a.nameAr:a.name}</td><td class="px-4 py-3">${state.lang==='ar'?a.jobAr:a.job}</td><td class="px-4 py-3">${getStatusBadge(a.status)}</td></tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+
+  // Initialize Chart.js
+  const ctx = document.getElementById('dashboard-chart');
+  if (ctx && typeof Chart !== 'undefined') {
+    if (window._dashboardChart) window._dashboardChart.destroy();
+    window._dashboardChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: barLabels,
+        datasets: [{
+          label: 'Applications',
+          data: barData,
+          backgroundColor: 'rgba(99, 102, 241, 0.8)',
+          borderColor: 'rgba(99, 102, 241, 1)',
+          borderWidth: 1,
+          borderRadius: 8,
+          hoverBackgroundColor: 'rgba(99, 102, 241, 1)',
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e293b',
+            titleFont: { family: 'Inter' },
+            bodyFont: { family: 'Inter' },
+            padding: 10,
+            cornerRadius: 8,
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8' }
+          }
+        }
+      }
+    });
+  }
+}
+
+function renderAdminJobs(c) {
+  c.innerHTML = `
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold" data-i18n="admin_jobs"></h2>
+      <button onclick="openJobModal()" class="px-4 py-2 bg-primary-700 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg><span data-i18n="admin_new_job"></span></button>
+    </div>
+    <div class="space-y-3">
+      ${JOBS.map(j => `
+        <div class="glass-card rounded-2xl p-4 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg ${j.color} flex items-center justify-center font-bold text-xs shrink-0">${j.initial}</div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-medium truncate">${getJobField(j,'title')}</h4>
+            <p class="text-xs text-gray-500">${getJobField(j,'company')} - ${getJobField(j,'city')}</p>
+          </div>
+          <span class="badge bg-green-100 text-green-700 hidden sm:inline" data-i18n="admin_active"></span>
+          <div class="flex gap-1">
+            <button class="px-3 py-1.5 text-xs font-medium text-indigo-700 bg-primary-50 rounded-lg hover:bg-primary-100" data-i18n="admin_edit_job"></button>
+            <button class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100" data-i18n="admin_hide_job"></button>
+            <button class="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100" data-i18n="admin_delete_job"></button>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function renderAdminApps(c) {
+  c.innerHTML = `
+    <h2 class="text-2xl font-bold mb-6" data-i18n="admin_apps"></h2>
+    <div class="flex flex-wrap gap-3 mb-6">
+      <input id="admin-search-input" type="text" data-i18n-placeholder="admin_search" class="flex-1 min-w-[200px] px-4 py-2 border rounded-xl text-sm" oninput="filterAdminApps()">
+      <select id="admin-status-filter" onchange="filterAdminApps()" class="px-4 py-2 border rounded-lg text-sm bg-white">
+        <option value="">All</option>
+        <option value="pending_payment">Pending Payment</option>
+        <option value="paid">Paid</option>
+        <option value="under_review">Under Review</option>
+        <option value="accepted">Accepted</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+    <div id="admin-apps-list" class="space-y-3">
+      ${renderAppsList(ADMIN_APPS)}
+    </div>`;
+}
+
+function renderAppsList(apps) {
+  return apps.map(a => `
+    <div class="glass-card rounded-2xl overflow-hidden">
+      <div class="p-4 flex flex-wrap items-center gap-3 cursor-pointer hover:bg-white/90" onclick="toggleAppDetail('${a.code}')">
+        <span class="font-mono text-xs text-gray-500 ltr-nums">${a.code}</span>
+        <span class="font-medium">${state.lang==='ar'?a.nameAr:a.name}</span>
+        <span class="text-sm text-gray-500">${state.lang==='ar'?a.jobAr:a.job}</span>
+        <span class="ml-auto text-xs ltr-nums">${a.date}</span>
+        <span class="font-semibold text-sm ltr-nums">${a.amount} EGP</span>
+        ${getStatusBadge(a.status)}
+        ${getMethodBadge(a.method)}
+        <button class="px-3 py-1 text-xs font-medium text-indigo-700 bg-primary-50 rounded-lg" data-i18n="admin_review"></button>
+      </div>
+      <div id="app-detail-${a.code}" class="hidden border-t bg-gray-50 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div><label class="text-xs text-gray-500">${t('email')}</label><p class="text-sm">${a.email}</p></div>
+          <div><label class="text-xs text-gray-500">${t('phone')}</label><p class="text-sm ltr-nums">${a.phone}</p></div>
+        </div>
+        <div class="mb-4"><label class="text-xs text-gray-500" data-i18n="admin_cover_letter_label"></label><p class="text-sm bg-white rounded-lg p-3 border mt-1">Sample cover letter for this position demonstrating the applicant's interest and qualifications.</p></div>
+        <div class="flex gap-2 mb-4">
+          <button class="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium" data-i18n="admin_download_cv"></button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div><label class="text-xs text-gray-500 mb-1 block" data-i18n="admin_status"></label><select class="w-full px-3 py-2 border rounded-lg text-sm bg-white"><option value="pending_payment" ${a.status==='pending_payment'?'selected':''}>Pending Payment</option><option value="paid" ${a.status==='paid'?'selected':''}>Paid</option><option value="under_review" ${a.status==='under_review'?'selected':''}>Under Review</option><option value="accepted" ${a.status==='accepted'?'selected':''}>Accepted</option><option value="rejected" ${a.status==='rejected'?'selected':''}>Rejected</option></select></div>
+        </div>
+        <div class="mb-4"><label class="text-xs text-gray-500 mb-1 block" data-i18n="admin_public_note"></label><textarea rows="2" class="w-full px-3 py-2 border rounded-lg text-sm resize-none" placeholder="Comment visible to applicant..."></textarea></div>
+        <div class="mb-4"><label class="text-xs text-gray-500 mb-1 block" data-i18n="admin_internal_note"></label><textarea rows="2" class="w-full px-3 py-2 border rounded-lg text-sm resize-none" placeholder="Internal note..."></textarea></div>
+        <button onclick="showToast('Saved!','success')" class="px-6 py-2 bg-primary-700 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition" data-i18n="admin_save"></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleAppDetail(code) {
+  const el = document.getElementById('app-detail-' + code);
+  if (el) el.classList.toggle('hidden');
+}
+
+function filterAdminApps() {
+  const search = (document.getElementById('admin-search-input')?.value || '').toLowerCase();
+  const statusFilter = document.getElementById('admin-status-filter')?.value || '';
+  const filtered = ADMIN_APPS.filter(a => {
+    if (statusFilter && a.status !== statusFilter) return false;
+    if (search && !a.name.toLowerCase().includes(search) && !a.code.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  document.getElementById('admin-apps-list').innerHTML = renderAppsList(filtered);
+  applyI18n();
+}
+
+// ===================== ADMIN FINANCE TAB =====================
+function renderAdminFinance(c) {
+  const totalEgp = FINANCE_DATA.reduce((s,f)=>s+f.amount,0);
+  const totalUsdt = FINANCE_DATA.reduce((s,f)=>s+f.usdt,0);
+  const pendingCount = FINANCE_DATA.filter(f=>f.status==='pending').length;
+
+  c.innerHTML = `
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold" data-i18n="admin_finance"></h2>
+      <button onclick="exportCSV()" class="px-4 py-2 bg-primary-700 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span data-i18n="finance_export_csv"></span></button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="glass-card rounded-2xl p-5 card-hover text-center"><p class="text-sm text-gray-500" data-i18n="finance_total_egp"></p><p class="text-2xl font-bold text-green-600 ltr-nums">${totalEgp.toLocaleString()} EGP</p></div>
+      <div class="glass-card rounded-2xl p-5 card-hover text-center"><p class="text-sm text-gray-500" data-i18n="finance_total_usdt"></p><p class="text-2xl font-bold text-blue-600 ltr-nums">${totalUsdt.toFixed(2)} USDT</p></div>
+      <div class="glass-card rounded-2xl p-5 card-hover text-center"><p class="text-sm text-gray-500" data-i18n="finance_pending_payments"></p><p class="text-2xl font-bold text-yellow-600 ltr-nums">${pendingCount}</p></div>
+    </div>
+    <div class="glass-card rounded-3xl overflow-hidden">
+      <div class="p-4 border-b"><h3 class="font-semibold" data-i18n="finance_recent"></h3></div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="bg-gray-50 text-left">
+          <th class="px-4 py-3 font-medium text-gray-500" data-i18n="finance_code"></th>
+          <th class="px-4 py-3 font-medium text-gray-500" data-i18n="admin_applicant"></th>
+          <th class="px-4 py-3 font-medium text-gray-500" data-i18n="finance_amount"></th>
+          <th class="px-4 py-3 font-medium text-gray-500">USDT</th>
+          <th class="px-4 py-3 font-medium text-gray-500" data-i18n="finance_method"></th>
+          <th class="px-4 py-3 font-medium text-gray-500" data-i18n="admin_status"></th>
+          <th class="px-4 py-3 font-medium text-gray-500" data-i18n="finance_tx_id"></th>
+          <th class="px-4 py-3 font-medium text-gray-500" data-i18n="finance_date"></th>
+        </tr></thead>
+        <tbody>${FINANCE_DATA.map(f=>`<tr class="border-t hover:bg-gray-50">
+          <td class="px-4 py-3 font-mono text-xs ltr-nums">${f.code}</td>
+          <td class="px-4 py-3">${f.name}</td>
+          <td class="px-4 py-3 font-semibold ltr-nums">${f.amount} EGP</td>
+          <td class="px-4 py-3 ltr-nums">${f.usdt > 0 ? f.usdt.toFixed(2) : '-'}</td>
+          <td class="px-4 py-3">${getMethodBadge(f.method)}</td>
+          <td class="px-4 py-3">${getStatusBadge(f.status)}</td>
+          <td class="px-4 py-3 font-mono text-xs ltr-nums">${f.txId}</td>
+          <td class="px-4 py-3 ltr-nums">${f.date}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+}
+
+function exportCSV() {
+  let csv = 'Code,Name,Amount EGP,USDT,Method,Status,TX ID,Date\n';
+  FINANCE_DATA.forEach(f => {
+    csv += `${f.code},${f.name},${f.amount},${f.usdt},${f.method},${f.status},${f.txId},${f.date}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'synkem-finance.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported!', 'success');
+}
+
+// ===================== ADMIN SETTINGS TAB =====================
+function renderAdminSettings(c) {
+  c.innerHTML = `
+    <h2 class="text-2xl font-bold mb-6" data-i18n="admin_settings"></h2>
+    <div class="space-y-6">
+      <!-- Payment Settings -->
+      <div class="glass-card rounded-2xl p-6">
+        <h3 class="font-semibold mb-4" data-i18n="settings_payment_title"></h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_transfi_key"></label><input type="password" value="sk_live_xxxxxxxxxxxxxxxx" class="w-full px-3 py-2 border rounded-lg text-sm font-mono"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_transfi_merchant"></label><input value="MERCHANT_SK_001" class="w-full px-3 py-2 border rounded-lg text-sm font-mono"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_usdt_wallet"></label><input value="0x742d35Cc6634C0532925a3b844Bc9e7595f2bD45" class="w-full px-3 py-2 border rounded-lg text-sm font-mono ltr-nums"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_usdt_network"></label><select class="w-full px-3 py-2 border rounded-lg text-sm"><option>TRC-20 (Tron)</option><option>ERC-20 (Ethereum)</option><option>BEP-20 (BSC)</option></select></div>
+        </div>
+        <div class="mt-4"><label class="block text-xs font-medium mb-2" data-i18n="settings_payment_mode"></label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 text-sm"><input type="radio" name="pay-mode" value="auto" class="w-4 h-4"><span data-i18n="settings_mode_auto"></span></label>
+            <label class="flex items-center gap-2 text-sm"><input type="radio" name="pay-mode" value="manual" class="w-4 h-4"><span data-i18n="settings_mode_manual"></span></label>
+            <label class="flex items-center gap-2 text-sm"><input type="radio" name="pay-mode" value="both" class="w-4 h-4" checked><span data-i18n="settings_mode_both"></span></label>
+          </div>
+        </div>
+      </div>
+      <!-- P2P Details -->
+      <div class="glass-card rounded-2xl p-6">
+        <h3 class="font-semibold mb-4" data-i18n="settings_p2p_title"></h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_vodafone"></label><input value="010 123 456 78" class="w-full px-3 py-2 border rounded-lg text-sm ltr-nums"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_instapay"></label><input value="synkem@instapay" class="w-full px-3 py-2 border rounded-lg text-sm ltr-nums"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_orange"></label><input value="012 345 678 90" class="w-full px-3 py-2 border rounded-lg text-sm ltr-nums"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_etisalat"></label><input value="011 234 567 89" class="w-full px-3 py-2 border rounded-lg text-sm ltr-nums"></div>
+        </div>
+      </div>
+      <!-- Site Settings -->
+      <div class="glass-card rounded-2xl p-6">
+        <h3 class="font-semibold mb-4" data-i18n="settings_site_title"></h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_site_name"></label><input value="SYNKEM" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_contact_email"></label><input value="info@synkem.com" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_contact_phone"></label><input value="+20 2 1234 5678" class="w-full px-3 py-2 border rounded-lg text-sm ltr-nums"></div>
+        </div>
+      </div>
+      <!-- Telegram -->
+      <div class="glass-card rounded-2xl p-6">
+        <h3 class="font-semibold mb-4" data-i18n="settings_telegram_title"></h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_tg_token"></label><input type="password" value="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" class="w-full px-3 py-2 border rounded-lg text-sm font-mono"></div>
+          <div><label class="block text-xs font-medium mb-1" data-i18n="settings_tg_chat"></label><input value="-1001234567890" class="w-full px-3 py-2 border rounded-lg text-sm font-mono ltr-nums"></div>
+        </div>
+        <div class="mt-3"><label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" checked class="w-4 h-4 rounded"><span data-i18n="settings_tg_enable"></span></label></div>
+      </div>
+      <button onclick="showToast(t('toast_settings_saved'),'success')" class="px-8 py-3 bg-primary-700 text-white rounded-xl font-semibold hover:bg-primary-600 transition" data-i18n="settings_save_btn"></button>
+    </div>`;
+}
+
+// ===================== CAROUSEL =====================
+let carouselInterval = null;
+
+function initCarousel() {
+  const container = document.getElementById('featured-carousel');
+  if (!container) return;
+  const featured = JOBS.slice(0, 5);
+  container.innerHTML = featured.map((j, index) => `
+    <div class="carousel-card glass-card stagger-in rounded-3xl p-5 card-hover cursor-pointer group relative overflow-hidden" style="animation-delay:${index * 0.08}s" onclick="location.hash='#job?id=${j.id}'">
+      <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="relative">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="w-11 h-11 rounded-xl ${j.color} flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">${j.initial}</div>
+          <div class="min-w-0">
+            <h3 class="font-bold text-sm truncate">${getJobField(j,'title')}</h3>
+            <p class="text-xs text-gray-500">${getJobField(j,'company')}</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <span class="text-xs text-gray-500 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${getJobField(j,'city')}</span>
+          ${getTypeBadge(j.type)}
+        </div>
+        <div class="flex items-center justify-between pt-3 border-t border-gray-100/60">
+          <div><span class="text-base font-bold bg-gradient-to-r from-indigo-600 to-indigo-500 bg-clip-text text-transparent ltr-nums">${j.salary.toLocaleString()}</span><span class="text-xs text-gray-400 ml-1">${t('egp')}</span></div>
+          <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg ltr-nums">${j.fee} ${t('egp')}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Auto-scroll
+  startCarouselAutoScroll();
+  container.addEventListener('mouseenter', () => clearInterval(carouselInterval));
+  container.addEventListener('mouseleave', () => startCarouselAutoScroll());
+}
+
+function startCarouselAutoScroll() {
+  clearInterval(carouselInterval);
+  carouselInterval = setInterval(() => {
+    const container = document.getElementById('featured-carousel');
+    if (!container) return;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    if (container.scrollLeft >= maxScroll - 10) {
+      container.scrollTo({left:0, behavior:'smooth'});
+    } else {
+      container.scrollBy({left:320, behavior:'smooth'});
+    }
+  }, 4000);
+}
+
+function scrollCarousel(dir) {
+  const container = document.getElementById('featured-carousel');
+  if (!container) return;
+  container.scrollBy({left: dir * 320, behavior:'smooth'});
+}
+
+// ===================== SEARCH AUTOCOMPLETE =====================
+let searchDropdownTimeout = null;
+
+function onSearchInput(value) {
+  const dropdown = document.getElementById('search-dropdown');
+  if (!dropdown) return;
+  clearTimeout(searchDropdownTimeout);
+
+  if (!value.trim()) {
+    dropdown.classList.remove('show');
+    dropdown.innerHTML = '';
+    return;
+  }
+
+  const q = value.toLowerCase();
+  const matches = JOBS.filter(j => {
+    const title = (getJobField(j,'title') || '').toLowerCase();
+    const company = (getJobField(j,'company') || '').toLowerCase();
+    return title.includes(q) || company.includes(q);
+  }).slice(0, 5);
+
+  if (matches.length === 0) {
+    dropdown.classList.remove('show');
+    dropdown.innerHTML = '';
+    return;
+  }
+
+  dropdown.innerHTML = matches.map(j => `
+    <div class="px-4 py-3 hover:bg-indigo-50/80 dark:hover:bg-indigo-900/30 cursor-pointer transition flex items-center gap-3 border-b border-gray-100/40 last:border-0" onmousedown="location.hash='#job?id=${j.id}'">
+      <div class="w-9 h-9 rounded-xl ${j.color} flex items-center justify-center font-bold text-xs shrink-0">${j.initial}</div>
+      <div class="min-w-0 flex-1">
+        <div class="font-semibold text-sm truncate text-gray-800">${getJobField(j,'title')}</div>
+        <div class="text-xs text-gray-500">${getJobField(j,'company')} &middot; ${getJobField(j,'city')}</div>
+      </div>
+      <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg ltr-nums shrink-0">${j.fee} ${t('egp')}</span>
+    </div>
+  `).join('');
+  dropdown.classList.add('show');
+}
+
+// Hide dropdown on blur with delay for click
+document.addEventListener('click', function(e) {
+  const dropdown = document.getElementById('search-dropdown');
+  const searchInput = document.getElementById('hero-search');
+  if (dropdown && searchInput && !searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove('show');
+  }
+});
+
+// ===================== INIT =====================
+async function init() {
+  initTheme();
+  await loadLocale(state.lang);
+  const isRtl = state.lang === 'ar';
+  document.documentElement.lang = state.lang;
+  document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+  applyI18n();
+  window.addEventListener('hashchange', navigate);
+  navigate();
+}
+
+init();
+</script>
+</body>
+</html>
