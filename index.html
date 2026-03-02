@@ -159,7 +159,7 @@ html.dark .skeleton-block{background:linear-gradient(90deg,#334155 25%,#475569 5
       <a href="#track" class="text-sm font-medium text-gray-600 hover:text-amber-600 hover:bg-amber-50/50 px-4 py-2 rounded-xl transition" data-i18n="nav_track"></a>
     </nav>
     <div class="flex items-center gap-2">
-      <div class="hidden md:flex items-center gap-0.5 bg-white/[0.06] rounded-xl p-1">
+      <div class="hidden md:flex items-center gap-0.5 bg-gray-100 dark:bg-white/[0.06] rounded-xl p-1">
         <button onclick="setLang('ar')" class="lang-btn px-3 py-1.5 rounded-lg text-xs font-medium transition" data-lang="ar">عربي</button>
         <button onclick="setLang('en')" class="lang-btn px-3 py-1.5 rounded-lg text-xs font-medium transition" data-lang="en">EN</button>
         <button onclick="setLang('ru')" class="lang-btn px-3 py-1.5 rounded-lg text-xs font-medium transition" data-lang="ru">RU</button>
@@ -842,10 +842,16 @@ function applyI18n() {
     if (state.locale[k]) el.placeholder = state.locale[k];
   });
   // Update lang buttons
+  const isDark = document.documentElement.classList.contains('dark');
   document.querySelectorAll('.lang-btn').forEach(b => {
-    b.classList.toggle('bg-white/10', b.dataset.lang === state.lang);
-    b.classList.toggle('text-amber-400', b.dataset.lang === state.lang);
-    b.classList.toggle('text-gray-400', b.dataset.lang !== state.lang);
+    const isActive = b.dataset.lang === state.lang;
+    b.classList.toggle('bg-white', isActive && !isDark);
+    b.classList.toggle('shadow-sm', isActive && !isDark);
+    b.classList.toggle('bg-white/10', isActive && isDark);
+    b.classList.toggle('text-amber-600', isActive && !isDark);
+    b.classList.toggle('text-amber-400', isActive && isDark);
+    b.classList.toggle('text-gray-500', !isActive && !isDark);
+    b.classList.toggle('text-gray-400', !isActive && isDark);
   });
 }
 
