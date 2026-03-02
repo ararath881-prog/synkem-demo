@@ -822,7 +822,7 @@ const state = {
 // ===================== i18n =====================
 async function loadLocale(lang) {
   try {
-    const r = await fetch(`/locales/${lang}.json`);
+    const r = await fetch(`locales/${lang}.json`);
     state.locale = await r.json();
   } catch(e) {
     console.warn('Locale load failed, using fallback');
