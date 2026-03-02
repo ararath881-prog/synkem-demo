@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /#admin
+Disallow: /#admin-login
+
+Sitemap: https://pharaonix.com/sitemap.xml
+
+# PHARAONIX - Egypt's Leading Job Platform
+# https://pharaonix.com
